@@ -1,20 +1,386 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="using:BiometricsApp.UI.ViewModels"
+        xmlns:controls="using:BiometricsApp.UI.Controls"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+        mc:Ignorable="d" d:DesignWidth="1600" d:DesignHeight="1000"
         x:Class="BiometricsApp.UI.Views.MainWindow"
         x:DataType="vm:MainWindowViewModel"
         Icon="/Assets/avalonia-logo.ico"
-        Title="BiometricsApp.UI">
+        Title="Biometrics Studio - Image Processing Suite"
+        Width="1600" Height="1000"
+        MinWidth="1200" MinHeight="800"
+        Background="#FFFFFF"
+        SystemDecorations="Full"
+        ExtendClientAreaToDecorationsHint="False">
 
     <Design.DataContext>
-        <!-- This only sets the DataContext for the previewer in an IDE,
-             to set the actual DataContext for runtime, set the DataContext property in code (look at App.axaml.cs) -->
         <vm:MainWindowViewModel/>
     </Design.DataContext>
 
-    <TextBlock Text="{Binding Greeting}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+    <Window.Styles>
+        <Style Selector="Button.primary">
+            <Setter Property="Background" Value="#0078D4"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="Padding" Value="16,10"/>
+            <Setter Property="CornerRadius" Value="4"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Cursor" Value="Hand"/>
+        </Style>
+        <Style Selector="Button.primary:pointerover">
+            <Setter Property="Background" Value="#106EBE"/>
+        </Style>
+        <Style Selector="Button.primary:pressed">
+            <Setter Property="Background" Value="#005A9E"/>
+        </Style>
+        
+        <Style Selector="Button.secondary">
+            <Setter Property="Background" Value="#F3F2F1"/>
+            <Setter Property="Foreground" Value="#323130"/>
+            <Setter Property="BorderBrush" Value="#8A8886"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="16,10"/>
+            <Setter Property="CornerRadius" Value="4"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Cursor" Value="Hand"/>
+        </Style>
+        <Style Selector="Button.secondary:pointerover">
+            <Setter Property="Background" Value="#E1DFDD"/>
+        </Style>
+        
+        <Style Selector="Button.success">
+            <Setter Property="Background" Value="#107C10"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="Padding" Value="16,10"/>
+            <Setter Property="CornerRadius" Value="4"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Cursor" Value="Hand"/>
+        </Style>
+        <Style Selector="Button.success:pointerover">
+            <Setter Property="Background" Value="#0E6B0E"/>
+        </Style>
+        
+        <Style Selector="Button.danger">
+            <Setter Property="Background" Value="#D13438"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="Padding" Value="16,10"/>
+            <Setter Property="CornerRadius" Value="4"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Cursor" Value="Hand"/>
+        </Style>
+        
+        <Style Selector="TextBlock.title">
+            <Setter Property="FontSize" Value="24"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="#323130"/>
+        </Style>
+        
+        <Style Selector="TextBlock.subtitle">
+            <Setter Property="FontSize" Value="18"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="#323130"/>
+        </Style>
+        
+        <Style Selector="TextBlock.label">
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="#605E5C"/>
+        </Style>
+        
+        <Style Selector="TextBlock.caption">
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Foreground" Value="#8A8886"/>
+        </Style>
+    </Window.Styles>
+
+    <Grid RowDefinitions="Auto,Auto,*,Auto">
+        
+        <!-- Application Header -->
+        <Border Grid.Row="0" Background="#0078D4" Padding="20,16">
+            <Grid ColumnDefinitions="Auto,*">
+                <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
+                    <Viewbox Width="32" Height="32">
+                        <Canvas Width="24" Height="24">
+                            <Path Fill="White" Data="M12,2L2,7V17C2,21.4 5.6,25 12,25C18.4,25 22,21.4 22,17V7L12,2M12,4.4L19,8.3V17C19,19.8 16.8,22 12,22C7.2,22 5,19.8 5,17V8.3L12,4.4M12,11A2,2 0 0,1 14,13A2,2 0 0,1 12,15A2,2 0 0,1 10,13A2,2 0 0,1 12,11Z"/>
+                        </Canvas>
+                    </Viewbox>
+                    <StackPanel Spacing="2">
+                        <TextBlock Text="Biometrics Studio" 
+                                  FontSize="18" 
+                                  FontWeight="SemiBold" 
+                                  Foreground="White"/>
+                        <TextBlock Text="Image Processing Suite" 
+                                  FontSize="11" 
+                                  Foreground="#FFFFFF99"
+                                  Opacity="0.8"/>
+                    </StackPanel>
+                </StackPanel>
+                
+                <Border Grid.Column="1"
+                        Background="#00000020" 
+                        CornerRadius="12" 
+                        Padding="10,6"
+                        HorizontalAlignment="Right"
+                        VerticalAlignment="Center"
+                        IsVisible="{Binding IsProcessing}">
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <ProgressBar IsIndeterminate="True"
+                                    Width="100"
+                                    Height="3"
+                                    VerticalAlignment="Center"
+                                    Foreground="White"/>
+                        <TextBlock Text="Processing..." 
+                                  FontSize="12" 
+                                  Foreground="White"
+                                  VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Border>
+            </Grid>
+        </Border>
+
+        <!-- Ribbon Toolbar -->
+        <Border Grid.Row="1" Background="#F3F2F1" BorderBrush="#EDEBE9" BorderThickness="0,0,0,1">
+            <Grid Margin="20,12">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="16"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="16"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                
+                <!-- File Group -->
+                <StackPanel Grid.Column="0">
+                    <TextBlock Text="FILE" Classes="caption" Margin="0,0,0,6"/>
+                    <StackPanel Orientation="Horizontal" Spacing="6">
+                        <Button Command="{Binding LoadImageCommand}" Classes="success">
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <Viewbox Width="16" Height="16">
+                                    <Canvas Width="24" Height="24">
+                                        <Path Fill="White" Data="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20M12,19L8,15H10.5V12H13.5V15H16L12,19Z"/>
+                                    </Canvas>
+                                </Viewbox>
+                                <TextBlock Text="Open" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Button>
+                        
+                        <Button Command="{Binding SaveImageCommand}"
+                                Classes="primary"
+                                IsEnabled="{Binding ProcessedImage, Converter={x:Static ObjectConverters.IsNotNull}}">
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <Viewbox Width="16" Height="16">
+                                    <Canvas Width="24" Height="24">
+                                        <Path Fill="White" Data="M15,9H5V5H15M12,19A3,3 0 0,1 9,16A3,3 0 0,1 12,13A3,3 0 0,1 15,16A3,3 0 0,1 12,19M17,3H5C3.89,3 3,3.9 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V7L17,3Z"/>
+                                    </Canvas>
+                                </Viewbox>
+                                <TextBlock Text="Save" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Button>
+                    </StackPanel>
+                </StackPanel>
+                
+                <Separator Grid.Column="1" Width="1" Background="#EDEBE9"/>
+                
+                <!-- Edit Group -->
+                <StackPanel Grid.Column="2">
+                    <TextBlock Text="EDIT" Classes="caption" Margin="0,0,0,6"/>
+                    <Button Command="{Binding ResetImageCommand}"
+                            Classes="secondary"
+                            IsEnabled="{Binding ProcessedImage, Converter={x:Static ObjectConverters.IsNotNull}}">
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <Viewbox Width="16" Height="16">
+                                <Canvas Width="24" Height="24">
+                                    <Path Fill="#323130" Data="M12,4C14.1,4 16.1,4.8 17.6,6.3C20.7,9.4 20.7,14.5 17.6,17.6C15.8,19.5 13.3,20.2 10.9,19.9L11.4,17.9C13.1,18.1 14.9,17.5 16.2,16.2C18.5,13.9 18.5,10.1 16.2,7.7C15.1,6.6 13.5,6 12,6V10.6L7,5.6L12,0.6V4M6.3,17.6C3.7,15 3.3,11 5.1,7.9L6.6,9.4C5.5,11.6 5.9,14.4 7.8,16.2C8.3,16.7 8.9,17.1 9.6,17.4L9,19.4C8,19 7.1,18.4 6.3,17.6Z"/>
+                                </Canvas>
+                            </Viewbox>
+                            <TextBlock Text="Reset" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+                </StackPanel>
+                
+                <Separator Grid.Column="3" Width="1" Background="#EDEBE9"/>
+                
+                <!-- Process Group -->
+                <StackPanel Grid.Column="4">
+                    <TextBlock Text="PROCESS" Classes="caption" Margin="0,0,0,6"/>
+                    <Button Command="{Binding ApplyBinarizationCommand}"
+                            Classes="primary"
+                            IsEnabled="{Binding OriginalImage, Converter={x:Static ObjectConverters.IsNotNull}}">
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <Viewbox Width="16" Height="16">
+                                <Canvas Width="24" Height="24">
+                                    <Path Fill="White" Data="M19,3H5C3.89,3 3,3.89 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V5C21,3.89 20.1,3 19,3M19,5V19H5V5H19M13.96,12.29L11.21,15.83L9.25,13.47L6.5,17H17.5L13.96,12.29Z"/>
+                                </Canvas>
+                            </Viewbox>
+                            <TextBlock Text="Apply Binarization" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+                </StackPanel>
+                
+                <!-- Status -->
+                <TextBlock Grid.Column="6" 
+                          Text="{Binding StatusText}"
+                          Classes="label"
+                          VerticalAlignment="Center"
+                          Margin="20,0,0,0"/>
+            </Grid>
+        </Border>
+
+        <!-- Main Content Area -->
+        <Grid Grid.Row="2" ColumnDefinitions="*,Auto,380" Margin="20">
+            
+            <!-- Center - Images -->
+            <Grid Grid.Column="0" RowDefinitions="*,16,*">
+                
+                <!-- Original Image -->
+                <Border Grid.Row="0" 
+                        Background="White" 
+                        BorderBrush="#EDEBE9" 
+                        BorderThickness="1"
+                        CornerRadius="4"
+                        Padding="16">
+                    <controls:ImageWithHistogram 
+                        Title="Original Image"
+                        ImageSource="{Binding OriginalImage}"
+                        HistogramRed="{Binding HistogramRedOriginal}"
+                        HistogramGreen="{Binding HistogramGreenOriginal}"
+                        HistogramBlue="{Binding HistogramBlueOriginal}"
+                        HistogramAverage="{Binding HistogramAverageOriginal}"/>
+                </Border>
+
+                <!-- Processed Image -->
+                <Border Grid.Row="2" 
+                        Background="White" 
+                        BorderBrush="#EDEBE9" 
+                        BorderThickness="1"
+                        CornerRadius="4"
+                        Padding="16"
+                        IsVisible="{Binding ProcessedImage, Converter={x:Static ObjectConverters.IsNotNull}}">
+                    <controls:ImageWithHistogram 
+                        Title="Processed Image"
+                        ImageSource="{Binding ProcessedImage}"
+                        HistogramRed="{Binding HistogramRedProcessed}"
+                        HistogramGreen="{Binding HistogramGreenProcessed}"
+                        HistogramBlue="{Binding HistogramBlueProcessed}"
+                        HistogramAverage="{Binding HistogramAverageProcessed}"/>
+                </Border>
+                
+                <!-- Placeholder when no processed image -->
+                <Border Grid.Row="2" 
+                        Background="#FAFAFA" 
+                        BorderBrush="#EDEBE9" 
+                        BorderThickness="2"
+                        CornerRadius="4"
+                        IsVisible="{Binding ProcessedImage, Converter={x:Static ObjectConverters.IsNull}}">
+                    <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Spacing="12">
+                        <Viewbox Width="64" Height="64" Opacity="0.3">
+                            <Canvas Width="24" Height="24">
+                                <Path Fill="#8A8886" Data="M19,13H13V19H11V13H5V11H11V5H13V11H19V13Z"/>
+                            </Canvas>
+                        </Viewbox>
+                        <TextBlock Text="Processed image will appear here" 
+                                  Classes="caption"
+                                  HorizontalAlignment="Center"/>
+                        <TextBlock Text="Apply an operation to see results" 
+                                  FontSize="11"
+                                  Foreground="#C8C6C4"
+                                  HorizontalAlignment="Center"/>
+                    </StackPanel>
+                </Border>
+            </Grid>
+
+            <GridSplitter Grid.Column="1" 
+                         Width="1" 
+                         Background="#EDEBE9"
+                         Margin="16,0"/>
+
+            <!-- Right Sidebar - Properties Panel -->
+            <ScrollViewer Grid.Column="2" VerticalScrollBarVisibility="Auto">
+                <StackPanel Spacing="16">
+                    
+                    <!-- Binarization Section -->
+                    <Border Background="White" 
+                            BorderBrush="#EDEBE9" 
+                            BorderThickness="1"
+                            CornerRadius="4"
+                            Padding="20">
+                        <StackPanel Spacing="16">
+                            <TextBlock Text="Binarization Settings" Classes="subtitle"/>
+                            
+                            <Separator Background="#EDEBE9"/>
+                            
+                            <!-- Threshold -->
+                            <StackPanel Spacing="8">
+                                <Grid ColumnDefinitions="*,Auto">
+                                    <TextBlock Grid.Column="0" Text="Threshold Value" Classes="label"/>
+                                    <Border Grid.Column="1" 
+                                            Background="#F3F2F1" 
+                                            CornerRadius="2" 
+                                            Padding="8,4"
+                                            MinWidth="50">
+                                        <TextBlock Text="{Binding BinarizationThreshold}" 
+                                                  FontWeight="Bold"
+                                                  FontSize="14"
+                                                  Foreground="#0078D4"
+                                                  HorizontalAlignment="Center"/>
+                                    </Border>
+                                </Grid>
+                                <Slider Minimum="0" 
+                                       Maximum="255" 
+                                       Value="{Binding BinarizationThreshold}"
+                                       TickFrequency="1"
+                                       IsSnapToTickEnabled="True"
+                                       Foreground="#0078D4"/>
+                                <Grid ColumnDefinitions="*,*,*">
+                                    <TextBlock Grid.Column="0" Text="0" Classes="caption" HorizontalAlignment="Left"/>
+                                    <TextBlock Grid.Column="1" Text="128" Classes="caption" HorizontalAlignment="Center"/>
+                                    <TextBlock Grid.Column="2" Text="255" Classes="caption" HorizontalAlignment="Right"/>
+                                </Grid>
+                            </StackPanel>
+
+                            <!-- Channel Selection -->
+                            <StackPanel Spacing="8">
+                                <TextBlock Text="Channel" Classes="label"/>
+                                <ComboBox ItemsSource="{Binding Channels}"
+                                         SelectedItem="{Binding SelectedChannel}"
+                                         HorizontalAlignment="Stretch"
+                                         Padding="12,10"
+                                         FontSize="14"/>
+                                <TextBlock Text="Select which channel to process" 
+                                          Classes="caption"
+                                          TextWrapping="Wrap"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+            </ScrollViewer>
+        </Grid>
+
+        <!-- Footer Status Bar -->
+        <Border Grid.Row="3" 
+                Background="#F3F2F1" 
+                BorderBrush="#EDEBE9" 
+                BorderThickness="0,1,0,0"
+                Padding="20,10">
+            <Grid ColumnDefinitions="Auto,*,Auto">
+                <TextBlock Grid.Column="0" 
+                          Text="Biometrics Studio" 
+                          Classes="caption"
+                          VerticalAlignment="Center"/>
+                
+                <TextBlock Grid.Column="2" 
+                          Text="{Binding StatusText}"
+                          Classes="caption"
+                          VerticalAlignment="Center"/>
+            </Grid>
+        </Border>
+    </Grid>
 
 </Window>

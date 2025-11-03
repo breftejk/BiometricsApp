@@ -1,4 +1,4 @@
-using System.Drawing;
+using SkiaSharp;
 
 namespace BiometricsApp.Core.Interfaces;
 
@@ -17,6 +17,6 @@ public interface IImage
     IImage Save(string filename);
     IImage Update();
 
-    Bitmap RawBitmap { get; }
+    SKBitmap RawBitmap { get; }
 }
 

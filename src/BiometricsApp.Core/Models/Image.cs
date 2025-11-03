@@ -1,14 +1,12 @@
 using System.Diagnostics;
-using System.Drawing;
-using System.Drawing.Imaging;
-using System.Runtime.InteropServices;
+using SkiaSharp;
 using BiometricsApp.Core.Interfaces;
 using BiometricsApp.Core.Extensions;
 
 namespace BiometricsApp.Core.Models;
 
 /// <summary>
-/// Main image class for processing
+/// Main image class for processing using SkiaSharp (cross-platform)
 /// </summary>
 [DebuggerStepThrough]
 public class Image : IImage
@@ -46,8 +44,8 @@ public class Image : IImage
             int i = x * Channels + y * Stride;
 
             return
-                Channels == 3 ? [Raw[i + 2], Raw[i + 1], Raw[i + 0]] :
-                Channels == 4 ? [Raw[i + 2], Raw[i + 1], Raw[i + 0], Raw[i + 3]] :
+                Channels == 3 ? [Raw[i + 0], Raw[i + 1], Raw[i + 2]] :
+                Channels == 4 ? [Raw[i + 0], Raw[i + 1], Raw[i + 2], Raw[i + 3]] :
                 throw new NotImplementedException(nameof(Channels));
         }
         set
@@ -56,28 +54,28 @@ public class Image : IImage
             if (Channels == 3)
             {
                 Dirty = true;
-                Raw[i + 2] = value[0];
+                Raw[i + 0] = value[0];
                 if (value.Length < 2)
                 {
-                    Raw[i + 1] = Raw[i + 0] = value[0];
+                    Raw[i + 1] = Raw[i + 2] = value[0];
                     return;
                 }
                 Raw[i + 1] = value[1];
                 if (value.Length < 3) return;
-                Raw[i + 0] = value[2];
+                Raw[i + 2] = value[2];
             }
             else if (Channels == 4)
             {
                 Dirty = true;
-                Raw[i + 2] = value[0];
+                Raw[i + 0] = value[0];
                 if (value.Length < 2)
                 {
-                    Raw[i + 1] = Raw[i + 0] = value[0];
+                    Raw[i + 1] = Raw[i + 2] = value[0];
                     return;
                 }
                 Raw[i + 1] = value[1];
                 if (value.Length < 3) return;
-                Raw[i + 0] = value[2];
+                Raw[i + 2] = value[2];
                 if (value.Length < 4) return;
                 Raw[i + 3] = value[3];
             }
@@ -109,22 +107,37 @@ public class Image : IImage
         set => Set(x * Channels + y * Stride + (int)channel, value);
     }
 
-    public Image(string filename) : this(new Bitmap(filename)) { }
-
-    public Image(int width, int height, bool hasAlpha = false) :
-        this(new Bitmap(width, height,
-            hasAlpha ? PixelFormat.Format32bppArgb : PixelFormat.Format24bppRgb))
-    { }
-
-    public Image(int[] values, int? height = null, Color? foreground = null, Color? background = null) :
-        this(new Bitmap(values.Length, height ?? values.Max()))
+    public Image(string filename)
     {
+        using var bitmap = SKBitmap.Decode(filename);
+        if (bitmap == null)
+            throw new InvalidOperationException($"Could not load image: {filename}");
+        Load(bitmap);
+    }
+
+    public Image(int width, int height, bool hasAlpha = false)
+    {
+        var colorType = hasAlpha ? SKColorType.Rgba8888 : SKColorType.Rgb888x;
+        var bitmap = new SKBitmap(width, height, colorType, SKAlphaType.Premul);
+        Load(bitmap);
+        _ownsBitmap = true;
+    }
+
+    public Image(int[] values, int? height = null, Color? foreground = null, Color? background = null)
+    {
+        var width = values.Length;
+        var h = height ?? values.Max();
+        
+        var bitmap = new SKBitmap(width, h, SKColorType.Rgba8888, SKAlphaType.Premul);
+        Load(bitmap);
+        _ownsBitmap = true;
+
         if (height is not null)
         {
-            double h = (double)height;
+            double hd = (double)height;
             double max = values.Max();
             for (int i = 0; i < values.Length; i++)
-                values[i] = (int)(values[i] / max * h);
+                values[i] = (int)(values[i] / max * hd);
         }
 
         if (background is not null)
@@ -139,7 +152,11 @@ public class Image : IImage
                 this[i, Height - j - 1] = foreground.Value;
     }
 
-    internal Image(Bitmap bmp) => Load(bmp);
+    internal Image(SKBitmap bitmap)
+    {
+        Load(bitmap);
+        _ownsBitmap = false;
+    }
 
     /// <summary>
     /// Loads a new filename.
@@ -148,7 +165,15 @@ public class Image : IImage
     /// <returns>This image</returns>
     public IImage Load(string filename)
     {
-        Load(new Bitmap(filename));
+        if (_ownsBitmap && _bitmap != null)
+            _bitmap.Dispose();
+
+        using var bitmap = SKBitmap.Decode(filename);
+        if (bitmap == null)
+            throw new InvalidOperationException($"Could not load image: {filename}");
+        
+        Load(bitmap);
+        _ownsBitmap = true;
         return this;
     }
 
@@ -160,7 +185,22 @@ public class Image : IImage
     public IImage Save(string filename)
     {
         Update();
-        _bmp.Save(filename);
+        
+        var format = Path.GetExtension(filename).ToLowerInvariant() switch
+        {
+            ".png" => SKEncodedImageFormat.Png,
+            ".jpg" or ".jpeg" => SKEncodedImageFormat.Jpeg,
+            ".bmp" => SKEncodedImageFormat.Bmp,
+            ".gif" => SKEncodedImageFormat.Gif,
+            ".webp" => SKEncodedImageFormat.Webp,
+            _ => SKEncodedImageFormat.Png
+        };
+
+        using var image = SKImage.FromBitmap(_bitmap);
+        using var data = image.Encode(format, 100);
+        using var stream = File.OpenWrite(filename);
+        data.SaveTo(stream);
+        
         return this;
     }
 
@@ -171,23 +211,22 @@ public class Image : IImage
     {
         if (!Dirty)
             return this;
-        
-        BitmapData data = LockBits(_bmp, ImageLockMode.WriteOnly);
-        Marshal.Copy(Raw, 0, data.Scan0, Raw.Length);
-        _bmp.UnlockBits(data);
+
+        var pixels = _bitmap!.GetPixelSpan();
+        Raw.CopyTo(pixels);
         
         Dirty = false;
         return this;
     }
 
     /// <summary> Width in pixels </summary>
-    public int Width { get; internal set; }
+    public int Width { get; private set; }
     
     /// <summary> Height in pixels </summary>
-    public int Height { get; internal set; }
+    public int Height { get; private set; }
     
     /// <summary> Number of channels </summary>
-    public int Channels { get; internal set; }
+    public int Channels { get; private set; }
 
     /// <summary> Width in bytes </summary>
     public int Stride => Width * Channels;
@@ -201,32 +240,29 @@ public class Image : IImage
     /// <summary> True if any pixel was changed and the image was not updated; false otherwise </summary>
     public bool Dirty { get; private set; } = false;
 
-    public Bitmap RawBitmap => _bmp;
+    public SKBitmap RawBitmap => _bitmap!;
 
     internal byte[] Raw { get; set; } = [];
-    internal Bitmap _bmp = null!;
+    private SKBitmap? _bitmap;
+    private bool _ownsBitmap;
 
-    private void Load(Bitmap bmp)
+    private void Load(SKBitmap bitmap)
     {
         Dirty = false;
-        _bmp = bmp;
+        
+        // Create a copy to ensure we have the right format
+        _bitmap = new SKBitmap(bitmap.Width, bitmap.Height, SKColorType.Rgba8888, SKAlphaType.Premul);
+        using var canvas = new SKCanvas(_bitmap);
+        canvas.DrawBitmap(bitmap, 0, 0);
+        
+        Width = _bitmap.Width;
+        Height = _bitmap.Height;
+        Channels = 4; // RGBA
 
-        int channels = System.Drawing.Image.GetPixelFormatSize(_bmp.PixelFormat) >> 3;
-
-        BitmapData data = LockBits(_bmp, ImageLockMode.ReadOnly);
-
-        Raw = new byte[data.Width * data.Height * channels];
-        Marshal.Copy(data.Scan0, Raw, 0, Raw.Length);
-
-        bmp.UnlockBits(data);
-
-        Width = bmp.Width;
-        Height = bmp.Height;
-        Channels = channels;
+        Raw = new byte[Width * Height * Channels];
+        var pixels = _bitmap.GetPixelSpan();
+        pixels.CopyTo(Raw);
     }
-
-    private static BitmapData LockBits(Bitmap bmp, ImageLockMode lockMode) =>
-        bmp.LockBits(new Rectangle(Point.Empty, bmp.Size), lockMode, bmp.PixelFormat);
 
     private void Set(int i, byte value)
     {
@@ -237,6 +273,15 @@ public class Image : IImage
             );
         Raw[i] = value;
         Dirty = true;
+    }
+
+    public void Dispose()
+    {
+        if (_ownsBitmap && _bitmap != null)
+        {
+            _bitmap.Dispose();
+            _bitmap = null;
+        }
     }
 }
 

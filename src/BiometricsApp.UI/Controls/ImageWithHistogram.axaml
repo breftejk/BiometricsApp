@@ -1,0 +1,225 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="BiometricsApp.UI.Controls.ImageWithHistogram"
+             x:Name="root">
+    
+    <Grid RowDefinitions="Auto,*">
+        <!-- Header with title and histogram icon -->
+        <Grid Grid.Row="0" ColumnDefinitions="*,Auto" Margin="0,0,0,12">
+            <TextBlock Grid.Column="0" 
+                      Text="{Binding #root.Title}"
+                      FontSize="18" 
+                      FontWeight="SemiBold" 
+                      Foreground="#323130"
+                      VerticalAlignment="Center"/>
+            
+            <!-- Histogram Icon with Flyout -->
+            <Button Grid.Column="1" 
+                    Background="#0078D4" 
+                    CornerRadius="4" 
+                    Padding="10,6"
+                    Cursor="Hand"
+                    ToolTip.Tip="View histogram analysis">
+                <StackPanel Orientation="Horizontal" Spacing="6">
+                    <Viewbox Width="16" Height="16">
+                        <Canvas Width="24" Height="24">
+                            <Path Fill="White" Data="M6,21H3V10H6M13,21H10V3H13M20,21H17V14H20V21Z"/>
+                        </Canvas>
+                    </Viewbox>
+                    <TextBlock Text="Histogram" 
+                              FontSize="12" 
+                              Foreground="White"
+                              FontWeight="SemiBold"
+                              VerticalAlignment="Center"/>
+                </StackPanel>
+                
+                <Button.Flyout>
+                    <Flyout Placement="Bottom">
+                        <Border Background="White" 
+                                BorderBrush="#EDEBE9"
+                                BorderThickness="1"
+                                CornerRadius="4"
+                                Padding="20"
+                                MinWidth="450"
+                                MaxWidth="550">
+                            <StackPanel Spacing="20">
+                                <Grid ColumnDefinitions="Auto,*">
+                                    <Viewbox Grid.Column="0" Width="24" Height="24" Margin="0,0,12,0">
+                                        <Canvas Width="24" Height="24">
+                                            <Path Fill="#0078D4" Data="M6,21H3V10H6M13,21H10V3H13M20,21H17V14H20V21Z"/>
+                                        </Canvas>
+                                    </Viewbox>
+                                    <TextBlock Grid.Column="1"
+                                              Text="Channel Analysis" 
+                                              FontSize="20" 
+                                              FontWeight="SemiBold" 
+                                              Foreground="#323130"
+                                              VerticalAlignment="Center"/>
+                                </Grid>
+                                
+                                <Separator Background="#EDEBE9"/>
+                                
+                                <!-- Red Histogram -->
+                                <Border Background="#FFF5F5" 
+                                        BorderBrush="#FFEBEE" 
+                                        BorderThickness="1"
+                                        CornerRadius="4"
+                                        Padding="12">
+                                    <StackPanel Spacing="8">
+                                        <Grid ColumnDefinitions="Auto,*">
+                                            <Border Grid.Column="0" 
+                                                    Width="4" 
+                                                    Height="16" 
+                                                    Background="#D32F2F" 
+                                                    CornerRadius="2"
+                                                    Margin="0,0,8,0"/>
+                                            <TextBlock Grid.Column="1"
+                                                      Text="Red Channel" 
+                                                      FontSize="14" 
+                                                      Foreground="#D32F2F" 
+                                                      FontWeight="SemiBold"
+                                                      VerticalAlignment="Center"/>
+                                        </Grid>
+                                        <Border Background="White" 
+                                                BorderBrush="#FFCDD2"
+                                                BorderThickness="1"
+                                                CornerRadius="2" 
+                                                Height="110"
+                                                MinWidth="400">
+                                            <Image Source="{Binding #root.HistogramRed}" 
+                                                  Stretch="Fill"
+                                                  IsVisible="{Binding #root.HistogramRed, Converter={x:Static ObjectConverters.IsNotNull}}"/>
+                                        </Border>
+                                    </StackPanel>
+                                </Border>
+
+                                <!-- Green Histogram -->
+                                <Border Background="#F1F8F4" 
+                                        BorderBrush="#E8F5E9" 
+                                        BorderThickness="1"
+                                        CornerRadius="4"
+                                        Padding="12">
+                                    <StackPanel Spacing="8">
+                                        <Grid ColumnDefinitions="Auto,*">
+                                            <Border Grid.Column="0" 
+                                                    Width="4" 
+                                                    Height="16" 
+                                                    Background="#388E3C" 
+                                                    CornerRadius="2"
+                                                    Margin="0,0,8,0"/>
+                                            <TextBlock Grid.Column="1"
+                                                      Text="Green Channel" 
+                                                      FontSize="14" 
+                                                      Foreground="#388E3C" 
+                                                      FontWeight="SemiBold"
+                                                      VerticalAlignment="Center"/>
+                                        </Grid>
+                                        <Border Background="White" 
+                                                BorderBrush="#C8E6C9"
+                                                BorderThickness="1"
+                                                CornerRadius="2" 
+                                                Height="110"
+                                                MinWidth="400">
+                                            <Image Source="{Binding #root.HistogramGreen}" 
+                                                  Stretch="Fill"
+                                                  IsVisible="{Binding #root.HistogramGreen, Converter={x:Static ObjectConverters.IsNotNull}}"/>
+                                        </Border>
+                                    </StackPanel>
+                                </Border>
+
+                                <!-- Blue Histogram -->
+                                <Border Background="#F3F8FB" 
+                                        BorderBrush="#E3F2FD" 
+                                        BorderThickness="1"
+                                        CornerRadius="4"
+                                        Padding="12">
+                                    <StackPanel Spacing="8">
+                                        <Grid ColumnDefinitions="Auto,*">
+                                            <Border Grid.Column="0" 
+                                                    Width="4" 
+                                                    Height="16" 
+                                                    Background="#1976D2" 
+                                                    CornerRadius="2"
+                                                    Margin="0,0,8,0"/>
+                                            <TextBlock Grid.Column="1"
+                                                      Text="Blue Channel" 
+                                                      FontSize="14" 
+                                                      Foreground="#1976D2" 
+                                                      FontWeight="SemiBold"
+                                                      VerticalAlignment="Center"/>
+                                        </Grid>
+                                        <Border Background="White" 
+                                                BorderBrush="#BBDEFB"
+                                                BorderThickness="1"
+                                                CornerRadius="2" 
+                                                Height="110"
+                                                MinWidth="400">
+                                            <Image Source="{Binding #root.HistogramBlue}" 
+                                                  Stretch="Fill"
+                                                  IsVisible="{Binding #root.HistogramBlue, Converter={x:Static ObjectConverters.IsNotNull}}"/>
+                                        </Border>
+                                    </StackPanel>
+                                </Border>
+
+                                <!-- Average Histogram -->
+                                <Border Background="#FAFAFA" 
+                                        BorderBrush="#F5F5F5" 
+                                        BorderThickness="1"
+                                        CornerRadius="4"
+                                        Padding="12">
+                                    <StackPanel Spacing="8">
+                                        <Grid ColumnDefinitions="Auto,*">
+                                            <Border Grid.Column="0" 
+                                                    Width="4" 
+                                                    Height="16" 
+                                                    Background="#616161" 
+                                                    CornerRadius="2"
+                                                    Margin="0,0,8,0"/>
+                                            <TextBlock Grid.Column="1"
+                                                      Text="Average (Grayscale)" 
+                                                      FontSize="14" 
+                                                      Foreground="#616161" 
+                                                      FontWeight="SemiBold"
+                                                      VerticalAlignment="Center"/>
+                                        </Grid>
+                                        <Border Background="White" 
+                                                BorderBrush="#E0E0E0"
+                                                BorderThickness="1"
+                                                CornerRadius="2" 
+                                                Height="110"
+                                                MinWidth="400">
+                                            <Image Source="{Binding #root.HistogramAverage}" 
+                                                  Stretch="Fill"
+                                                  IsVisible="{Binding #root.HistogramAverage, Converter={x:Static ObjectConverters.IsNotNull}}"/>
+                                        </Border>
+                                    </StackPanel>
+                                </Border>
+                            </StackPanel>
+                        </Border>
+                    </Flyout>
+                </Button.Flyout>
+            </Button>
+        </Grid>
+
+        <!-- Image Display -->
+        <Border Grid.Row="1" 
+                Background="#FAFAFA" 
+                BorderBrush="#EDEBE9"
+                BorderThickness="1"
+                CornerRadius="4">
+            <Panel>
+                <!-- Checkerboard pattern for transparency -->
+                <Border Background="#FAFAFA">
+                    <Viewbox Stretch="Uniform" Margin="16">
+                        <Image Source="{Binding #root.ImageSource}"
+                              RenderOptions.BitmapInterpolationMode="HighQuality"/>
+                    </Viewbox>
+                </Border>
+            </Panel>
+        </Border>
+    </Grid>
+</UserControl>
+
