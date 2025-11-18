@@ -419,6 +419,294 @@
                                 </Border>
                             </StackPanel>
 
+                            <!-- Niblack Binarization -->
+                            <StackPanel Spacing="12"
+                                       IsVisible="{Binding SelectedOperation, Converter={x:Static ObjectConverters.Equal}, ConverterParameter='Niblack Binarization'}">
+                                <TextBlock Text="Niblack Binarization" Classes="subtitle" FontSize="16"/>
+                                <TextBlock Text="Local adaptive binarization based on mean and standard deviation"
+                                          Classes="caption"
+                                          TextWrapping="Wrap"/>
+                                
+                                <StackPanel Spacing="8">
+                                    <Grid ColumnDefinitions="*,Auto">
+                                        <TextBlock Grid.Column="0" Text="K Parameter" Classes="label"/>
+                                        <TextBlock Grid.Column="1" 
+                                                  Text="{Binding NiblackK, StringFormat='{}{0:F2}'}" 
+                                                  FontWeight="SemiBold"
+                                                  Foreground="#0078D4"/>
+                                    </Grid>
+                                    <Slider Minimum="-1.0" 
+                                           Maximum="0.5" 
+                                           Value="{Binding NiblackK}"
+                                           TickFrequency="0.1"
+                                           Foreground="#0078D4"/>
+                                </StackPanel>
+
+                                <StackPanel Spacing="8">
+                                    <Grid ColumnDefinitions="*,Auto">
+                                        <TextBlock Grid.Column="0" Text="Window Size" Classes="label"/>
+                                        <TextBlock Grid.Column="1" 
+                                                  Text="{Binding NiblackWindowSize}" 
+                                                  FontWeight="SemiBold"
+                                                  Foreground="#0078D4"/>
+                                    </Grid>
+                                    <Slider Minimum="3" 
+                                           Maximum="51" 
+                                           Value="{Binding NiblackWindowSize}"
+                                           TickFrequency="2"
+                                           IsSnapToTickEnabled="True"
+                                           Foreground="#0078D4"/>
+                                </StackPanel>
+                            </StackPanel>
+
+                            <!-- Sauvola Binarization -->
+                            <StackPanel Spacing="12"
+                                       IsVisible="{Binding SelectedOperation, Converter={x:Static ObjectConverters.Equal}, ConverterParameter='Sauvola Binarization'}">
+                                <TextBlock Text="Sauvola Binarization" Classes="subtitle" FontSize="16"/>
+                                <TextBlock Text="Improved Niblack method for document images"
+                                          Classes="caption"
+                                          TextWrapping="Wrap"/>
+                                
+                                <StackPanel Spacing="8">
+                                    <Grid ColumnDefinitions="*,Auto">
+                                        <TextBlock Grid.Column="0" Text="K Parameter" Classes="label"/>
+                                        <TextBlock Grid.Column="1" 
+                                                  Text="{Binding SauvolaK, StringFormat='{}{0:F2}'}" 
+                                                  FontWeight="SemiBold"
+                                                  Foreground="#0078D4"/>
+                                    </Grid>
+                                    <Slider Minimum="0.0" 
+                                           Maximum="1.0" 
+                                           Value="{Binding SauvolaK}"
+                                           TickFrequency="0.05"
+                                           Foreground="#0078D4"/>
+                                </StackPanel>
+
+                                <StackPanel Spacing="8">
+                                    <Grid ColumnDefinitions="*,Auto">
+                                        <TextBlock Grid.Column="0" Text="Window Size" Classes="label"/>
+                                        <TextBlock Grid.Column="1" 
+                                                  Text="{Binding SauvolaWindowSize}" 
+                                                  FontWeight="SemiBold"
+                                                  Foreground="#0078D4"/>
+                                    </Grid>
+                                    <Slider Minimum="3" 
+                                           Maximum="51" 
+                                           Value="{Binding SauvolaWindowSize}"
+                                           TickFrequency="2"
+                                           IsSnapToTickEnabled="True"
+                                           Foreground="#0078D4"/>
+                                </StackPanel>
+                            </StackPanel>
+
+                            <!-- Phansalkar Binarization -->
+                            <StackPanel Spacing="12"
+                                       IsVisible="{Binding SelectedOperation, Converter={x:Static ObjectConverters.Equal}, ConverterParameter='Phansalkar Binarization'}">
+                                <TextBlock Text="Phansalkar Binarization" Classes="subtitle" FontSize="16"/>
+                                <TextBlock Text="Advanced method for low contrast images"
+                                          Classes="caption"
+                                          TextWrapping="Wrap"/>
+                                
+                                <StackPanel Spacing="8">
+                                    <Grid ColumnDefinitions="*,Auto">
+                                        <TextBlock Grid.Column="0" Text="K Parameter" Classes="label"/>
+                                        <TextBlock Grid.Column="1" 
+                                                  Text="{Binding PhansalkarK, StringFormat='{}{0:F2}'}" 
+                                                  FontWeight="SemiBold"
+                                                  Foreground="#0078D4"/>
+                                    </Grid>
+                                    <Slider Minimum="0.0" 
+                                           Maximum="1.0" 
+                                           Value="{Binding PhansalkarK}"
+                                           TickFrequency="0.05"
+                                           Foreground="#0078D4"/>
+                                </StackPanel>
+
+                                <StackPanel Spacing="8">
+                                    <Grid ColumnDefinitions="*,Auto">
+                                        <TextBlock Grid.Column="0" Text="Window Size" Classes="label"/>
+                                        <TextBlock Grid.Column="1" 
+                                                  Text="{Binding PhansalkarWindowSize}" 
+                                                  FontWeight="SemiBold"
+                                                  Foreground="#0078D4"/>
+                                    </Grid>
+                                    <Slider Minimum="3" 
+                                           Maximum="51" 
+                                           Value="{Binding PhansalkarWindowSize}"
+                                           TickFrequency="2"
+                                           IsSnapToTickEnabled="True"
+                                           Foreground="#0078D4"/>
+                                </StackPanel>
+                            </StackPanel>
+
+                            <!-- Kapur Binarization -->
+                            <StackPanel Spacing="12"
+                                       IsVisible="{Binding SelectedOperation, Converter={x:Static ObjectConverters.Equal}, ConverterParameter='Kapur Binarization'}">
+                                <TextBlock Text="Kapur Binarization" Classes="subtitle" FontSize="16"/>
+                                <TextBlock Text="Entropy-based automatic threshold selection"
+                                          Classes="caption"
+                                          TextWrapping="Wrap"/>
+                                
+                                <Border Background="#F3F2F1" 
+                                        CornerRadius="3"
+                                        Padding="12">
+                                    <TextBlock Text="No parameters required. Uses maximum entropy criterion for optimal threshold."
+                                              FontSize="12"
+                                              Foreground="#605E5C"
+                                              TextWrapping="Wrap"/>
+                                </Border>
+
+                                <Border Background="#E8F4FD" 
+                                        BorderBrush="#0078D4"
+                                        BorderThickness="1"
+                                        CornerRadius="3"
+                                        Padding="12"
+                                        IsVisible="{Binding KapurThreshold, Converter={x:Static ObjectConverters.NotEqual}, ConverterParameter=128}">
+                                    <StackPanel Spacing="4">
+                                        <TextBlock Text="Calculated Threshold:" 
+                                                  FontSize="11"
+                                                  Foreground="#323130"/>
+                                        <TextBlock Text="{Binding KapurThreshold}" 
+                                                  FontSize="20"
+                                                  FontWeight="Bold"
+                                                  Foreground="#0078D4"/>
+                                    </StackPanel>
+                                </Border>
+                            </StackPanel>
+
+                            <!-- Li-Wu Binarization -->
+                            <StackPanel Spacing="12"
+                                       IsVisible="{Binding SelectedOperation, Converter={x:Static ObjectConverters.Equal}, ConverterParameter='Li-Wu Binarization'}">
+                                <TextBlock Text="Li-Wu Binarization" Classes="subtitle" FontSize="16"/>
+                                <TextBlock Text="Minimum cross entropy threshold selection"
+                                          Classes="caption"
+                                          TextWrapping="Wrap"/>
+                                
+                                <Border Background="#F3F2F1" 
+                                        CornerRadius="3"
+                                        Padding="12">
+                                    <TextBlock Text="No parameters required. Uses minimum cross entropy criterion."
+                                              FontSize="12"
+                                              Foreground="#605E5C"
+                                              TextWrapping="Wrap"/>
+                                </Border>
+
+                                <Border Background="#E8F4FD" 
+                                        BorderBrush="#0078D4"
+                                        BorderThickness="1"
+                                        CornerRadius="3"
+                                        Padding="12"
+                                        IsVisible="{Binding LiWuThreshold, Converter={x:Static ObjectConverters.NotEqual}, ConverterParameter=128}">
+                                    <StackPanel Spacing="4">
+                                        <TextBlock Text="Calculated Threshold:" 
+                                                  FontSize="11"
+                                                  Foreground="#323130"/>
+                                        <TextBlock Text="{Binding LiWuThreshold}" 
+                                                  FontSize="20"
+                                                  FontWeight="Bold"
+                                                  Foreground="#0078D4"/>
+                                    </StackPanel>
+                                </Border>
+                            </StackPanel>
+
+                            <!-- Bernsen Binarization -->
+                            <StackPanel Spacing="12"
+                                       IsVisible="{Binding SelectedOperation, Converter={x:Static ObjectConverters.Equal}, ConverterParameter='Bernsen Binarization'}">
+                                <TextBlock Text="Bernsen Binarization" Classes="subtitle" FontSize="16"/>
+                                <TextBlock Text="Local contrast-based binarization"
+                                          Classes="caption"
+                                          TextWrapping="Wrap"/>
+                                
+                                <StackPanel Spacing="8">
+                                    <Grid ColumnDefinitions="*,Auto">
+                                        <TextBlock Grid.Column="0" Text="Window Size" Classes="label"/>
+                                        <TextBlock Grid.Column="1" 
+                                                  Text="{Binding BernsenWindowSize}" 
+                                                  FontWeight="SemiBold"
+                                                  Foreground="#0078D4"/>
+                                    </Grid>
+                                    <Slider Minimum="3" 
+                                           Maximum="101" 
+                                           Value="{Binding BernsenWindowSize}"
+                                           TickFrequency="2"
+                                           IsSnapToTickEnabled="True"
+                                           Foreground="#0078D4"/>
+                                </StackPanel>
+
+                                <StackPanel Spacing="8">
+                                    <Grid ColumnDefinitions="*,Auto">
+                                        <TextBlock Grid.Column="0" Text="Contrast Threshold" Classes="label"/>
+                                        <TextBlock Grid.Column="1" 
+                                                  Text="{Binding BernsenContrastThreshold}" 
+                                                  FontWeight="SemiBold"
+                                                  Foreground="#0078D4"/>
+                                    </Grid>
+                                    <Slider Minimum="0" 
+                                           Maximum="100" 
+                                           Value="{Binding BernsenContrastThreshold}"
+                                           TickFrequency="5"
+                                           IsSnapToTickEnabled="True"
+                                           Foreground="#0078D4"/>
+                                </StackPanel>
+                            </StackPanel>
+
+                            <!-- Adaptive Gradient Binarization -->
+                            <StackPanel Spacing="12"
+                                       IsVisible="{Binding SelectedOperation, Converter={x:Static ObjectConverters.Equal}, ConverterParameter='Adaptive Gradient Binarization'}">
+                                <TextBlock Text="Adaptive Gradient Binarization" Classes="subtitle" FontSize="16"/>
+                                <TextBlock Text="Custom algorithm combining gradient information with adaptive thresholding"
+                                          Classes="caption"
+                                          TextWrapping="Wrap"/>
+                                
+                                <StackPanel Spacing="8">
+                                    <Grid ColumnDefinitions="*,Auto">
+                                        <TextBlock Grid.Column="0" Text="Window Size" Classes="label"/>
+                                        <TextBlock Grid.Column="1" 
+                                                  Text="{Binding AdaptiveGradientWindowSize}" 
+                                                  FontWeight="SemiBold"
+                                                  Foreground="#0078D4"/>
+                                    </Grid>
+                                    <Slider Minimum="3" 
+                                           Maximum="51" 
+                                           Value="{Binding AdaptiveGradientWindowSize}"
+                                           TickFrequency="2"
+                                           IsSnapToTickEnabled="True"
+                                           Foreground="#0078D4"/>
+                                </StackPanel>
+
+                                <StackPanel Spacing="8">
+                                    <Grid ColumnDefinitions="*,Auto">
+                                        <TextBlock Grid.Column="0" Text="Gradient Weight" Classes="label"/>
+                                        <TextBlock Grid.Column="1" 
+                                                  Text="{Binding AdaptiveGradientWeight, StringFormat='{}{0:F2}'}" 
+                                                  FontWeight="SemiBold"
+                                                  Foreground="#0078D4"/>
+                                    </Grid>
+                                    <Slider Minimum="0.0" 
+                                           Maximum="1.0" 
+                                           Value="{Binding AdaptiveGradientWeight}"
+                                           TickFrequency="0.05"
+                                           Foreground="#0078D4"/>
+                                </StackPanel>
+
+                                <Border Background="#E8F4FD" 
+                                        BorderBrush="#0078D4"
+                                        BorderThickness="1"
+                                        CornerRadius="3"
+                                        Padding="12">
+                                    <StackPanel Spacing="4">
+                                        <TextBlock Text="✨ Custom Algorithm" 
+                                                  FontSize="11"
+                                                  FontWeight="SemiBold"
+                                                  Foreground="#0078D4"/>
+                                        <TextBlock Text="This algorithm uses Sobel edge detection combined with adaptive local thresholding to preserve edges better."
+                                                  FontSize="11"
+                                                  Foreground="#323130"
+                                                  TextWrapping="Wrap"/>
+                                    </StackPanel>
+                                </Border>
+                            </StackPanel>
+
                             <!-- Histogram Stretching -->
                             <StackPanel Spacing="12"
                                        IsVisible="{Binding SelectedOperation, Converter={x:Static ObjectConverters.Equal}, ConverterParameter='Histogram Stretching'}">

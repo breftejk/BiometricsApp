@@ -69,6 +69,42 @@ public partial class MainWindowViewModel : ViewModelBase
     private int _otsuThreshold = 128;
 
     [ObservableProperty]
+    private double _niblackK = -0.2;
+
+    [ObservableProperty]
+    private int _niblackWindowSize = 15;
+
+    [ObservableProperty]
+    private double _sauvolaK = 0.5;
+
+    [ObservableProperty]
+    private int _sauvolaWindowSize = 15;
+
+    [ObservableProperty]
+    private double _phansalkarK = 0.25;
+
+    [ObservableProperty]
+    private int _phansalkarWindowSize = 15;
+
+    [ObservableProperty]
+    private int _bernsenWindowSize = 31;
+
+    [ObservableProperty]
+    private int _bernsenContrastThreshold = 15;
+
+    [ObservableProperty]
+    private int _kapurThreshold = 128;
+
+    [ObservableProperty]
+    private int _liWuThreshold = 128;
+
+    [ObservableProperty]
+    private int _adaptiveGradientWindowSize = 15;
+
+    [ObservableProperty]
+    private double _adaptiveGradientWeight = 0.3;
+
+    [ObservableProperty]
     private bool _isProcessing;
 
     [ObservableProperty]
@@ -89,6 +125,13 @@ public partial class MainWindowViewModel : ViewModelBase
     {
         "Threshold Binarization",
         "Otsu Binarization",
+        "Niblack Binarization",
+        "Sauvola Binarization",
+        "Phansalkar Binarization",
+        "Kapur Binarization",
+        "Li-Wu Binarization",
+        "Bernsen Binarization",
+        "Adaptive Gradient Binarization",
         "Histogram Stretching",
         "Histogram Equalization",
         "Brightness Adjustment",
@@ -294,6 +337,13 @@ public partial class MainWindowViewModel : ViewModelBase
                 {
                     "Threshold Binarization" => ApplyThresholdBinarization(),
                     "Otsu Binarization" => ApplyOtsuBinarization(out details),
+                    "Niblack Binarization" => ApplyNiblackBinarization(),
+                    "Sauvola Binarization" => ApplySauvolaBinarization(),
+                    "Phansalkar Binarization" => ApplyPhansalkarBinarization(),
+                    "Kapur Binarization" => ApplyKapurBinarization(out details),
+                    "Li-Wu Binarization" => ApplyLiWuBinarization(out details),
+                    "Bernsen Binarization" => ApplyBernsenBinarization(),
+                    "Adaptive Gradient Binarization" => ApplyAdaptiveGradientBinarization(),
                     "Histogram Stretching" => ApplyHistogramStretching(),
                     "Histogram Equalization" => ApplyHistogramEqualization(),
                     "Brightness Adjustment" => ApplyBrightnessAdjustment(),
@@ -364,6 +414,47 @@ public partial class MainWindowViewModel : ViewModelBase
     private Image ApplyContrastAdjustment()
     {
         return ImageAdjustments.AdjustContrast(_originalImageData!, ContrastValue);
+    }
+
+    private Image ApplyNiblackBinarization()
+    {
+        return NiblackBinarization.Apply(_originalImageData!, NiblackK, NiblackWindowSize);
+    }
+
+    private Image ApplySauvolaBinarization()
+    {
+        return SauvolaBinarization.Apply(_originalImageData!, SauvolaK, 128.0, SauvolaWindowSize);
+    }
+
+    private Image ApplyPhansalkarBinarization()
+    {
+        return PhansalkarBinarization.Apply(_originalImageData!, PhansalkarK, 0.5, 2.0, 10.0, PhansalkarWindowSize);
+    }
+
+    private Image ApplyKapurBinarization(out string details)
+    {
+        var (result, threshold) = KapurBinarization.Apply(_originalImageData!);
+        KapurThreshold = threshold;
+        details = $"Optimal threshold: {threshold}";
+        return result;
+    }
+
+    private Image ApplyLiWuBinarization(out string details)
+    {
+        var (result, threshold) = LiWuBinarization.Apply(_originalImageData!);
+        LiWuThreshold = threshold;
+        details = $"Optimal threshold: {threshold}";
+        return result;
+    }
+
+    private Image ApplyBernsenBinarization()
+    {
+        return BernsenBinarization.Apply(_originalImageData!, BernsenWindowSize, BernsenContrastThreshold);
+    }
+
+    private Image ApplyAdaptiveGradientBinarization()
+    {
+        return AdaptiveGradientBinarization.Apply(_originalImageData!, AdaptiveGradientWindowSize, AdaptiveGradientWeight);
     }
 
     private Image ApplyChannelBinarization(Channel channel, Image sourceImage)
