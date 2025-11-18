@@ -1,11 +1,5 @@
 # Zaimplementowane Algorytmy Binaryzacji
 
-## Przegląd
-
-Aplikacja zawiera implementację 8 zaawansowanych algorytmów binaryzacji obrazów, w tym 7 algorytmów z literatury naukowej oraz 1 autorski algorytm.
-
----
-
 ## 1. Niblack Binarization (Lokalna)
 
 **Typ:** Binaryzacja lokalna adaptacyjna  
@@ -166,7 +160,7 @@ Doskonały dla obrazów z różnym oświetleniem, ale dobrze zdefiniowanymi kraw
 
 ---
 
-## 7. Adaptive Gradient Binarization (WŁASNY ALGORYTM) ✨
+## 7. Adaptive Gradient Binarization
 
 **Typ:** Binaryzacja lokalna adaptacyjna z detekcją krawędzi  
 **Plik:** `AdaptiveGradientBinarization.cs`
@@ -210,7 +204,7 @@ Algorytm składa się z dwóch głównych faz:
 
 ---
 
-## 8. Otsu Binarization (już istniała)
+## 8. Otsu Binarization
 
 **Typ:** Binaryzacja globalna oparta na wariancji  
 **Plik:** `OtsuBinarization.cs`
@@ -236,46 +230,3 @@ Klasyczny algorytm minimalizujący wariancję wewnątrzklasową (lub maksymalizu
 gdzie:
 - `n` - liczba pikseli
 - `w` - rozmiar okna
-
----
-
-## Implementacja w UI
-
-Wszystkie algorytmy są dostępne w interfejsie użytkownika:
-1. Wybierz obraz (przycisk "Open")
-2. Wybierz algorytm z listy rozwijanej "Select Operation"
-3. Dostosuj parametry (jeśli dostępne)
-4. Kliknij "Apply Operation"
-5. Użyj "Undo" aby cofnąć operację
-
----
-
-## Punktacja
-
-✅ **Niblack** - 25 pkt  
-✅ **Sauvola** - 25 pkt  
-✅ **Phansalkar** - 25 pkt  
-✅ **Kapur** - 5 pkt (dodatkowy)  
-✅ **Li-Wu** - 5 pkt (dodatkowy)  
-✅ **Bernsen** - 5 pkt (dodatkowy)  
-✅ **Adaptive Gradient (własny)** - 25 pkt  
-
-**Razem: 115 punktów** (75 wymaganych + 40 dodatkowych)
-
----
-
-## Bibliografia
-
-1. Niblack, W. (1986). "An introduction to digital image processing"
-2. Sauvola, J., & Pietikäinen, M. (2000). "Adaptive document image binarization"
-3. Phansalkar, N., et al. (2011). "Adaptive local thresholding for detection of nuclei in diversity stained cytology images"
-4. Kapur, J. N., et al. (1985). "A new method for gray-level picture thresholding using the entropy of the histogram"
-5. Li, C. H., & Lee, C. K. (1993). "Minimum cross entropy thresholding"
-6. Bernsen, J. (1986). "Dynamic thresholding of grey-level images"
-7. Otsu, N. (1979). "A threshold selection method from gray-level histograms"
-
----
-
-**Data implementacji:** 18 listopada 2025  
-**Środowisko:** .NET 9.0, Avalonia UI  
-**Autor:** Marcin Kondrat
