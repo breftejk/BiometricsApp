@@ -43,8 +43,8 @@
                                 BorderThickness="1"
                                 CornerRadius="4"
                                 Padding="20"
-                                MinWidth="450"
-                                MaxWidth="550">
+                                MinWidth="800"
+                                MaxWidth="900">
                             <StackPanel Spacing="20">
                                 <Grid ColumnDefinitions="Auto,*">
                                     <Viewbox Grid.Column="0" Width="24" Height="24" Margin="0,0,12,0">
@@ -87,8 +87,8 @@
                                                 BorderBrush="#FFCDD2"
                                                 BorderThickness="1"
                                                 CornerRadius="2" 
-                                                Height="110"
-                                                MinWidth="400">
+                                                Height="150"
+                                                MinWidth="750">
                                             <Image Source="{Binding #root.HistogramRed}" 
                                                   Stretch="Fill"
                                                   IsVisible="{Binding #root.HistogramRed, Converter={x:Static ObjectConverters.IsNotNull}}"/>
@@ -121,8 +121,8 @@
                                                 BorderBrush="#C8E6C9"
                                                 BorderThickness="1"
                                                 CornerRadius="2" 
-                                                Height="110"
-                                                MinWidth="400">
+                                                Height="150"
+                                                MinWidth="750">
                                             <Image Source="{Binding #root.HistogramGreen}" 
                                                   Stretch="Fill"
                                                   IsVisible="{Binding #root.HistogramGreen, Converter={x:Static ObjectConverters.IsNotNull}}"/>
@@ -155,8 +155,8 @@
                                                 BorderBrush="#BBDEFB"
                                                 BorderThickness="1"
                                                 CornerRadius="2" 
-                                                Height="110"
-                                                MinWidth="400">
+                                                Height="150"
+                                                MinWidth="750">
                                             <Image Source="{Binding #root.HistogramBlue}" 
                                                   Stretch="Fill"
                                                   IsVisible="{Binding #root.HistogramBlue, Converter={x:Static ObjectConverters.IsNotNull}}"/>
@@ -189,8 +189,8 @@
                                                 BorderBrush="#E0E0E0"
                                                 BorderThickness="1"
                                                 CornerRadius="2" 
-                                                Height="110"
-                                                MinWidth="400">
+                                                Height="150"
+                                                MinWidth="750">
                                             <Image Source="{Binding #root.HistogramAverage}" 
                                                   Stretch="Fill"
                                                   IsVisible="{Binding #root.HistogramAverage, Converter={x:Static ObjectConverters.IsNotNull}}"/>

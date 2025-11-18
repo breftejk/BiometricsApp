@@ -11,6 +11,7 @@ using CommunityToolkit.Mvvm.Input;
 using BiometricsApp.Core.Models;
 using BiometricsApp.Algorithms.Binarization;
 using BiometricsApp.Algorithms.Histogram;
+using BiometricsApp.Algorithms.Adjustments;
 
 namespace BiometricsApp.UI.ViewModels;
 
@@ -53,16 +54,46 @@ public partial class MainWindowViewModel : ViewModelBase
     private string _selectedChannel = "Average";
 
     [ObservableProperty]
+    private int _brightnessValue = 0;
+
+    [ObservableProperty]
+    private double _contrastValue = 1.0;
+
+    [ObservableProperty]
+    private int _stretchMin = 0;
+
+    [ObservableProperty]
+    private int _stretchMax = 255;
+
+    [ObservableProperty]
+    private int _otsuThreshold = 128;
+
+    [ObservableProperty]
     private bool _isProcessing;
 
     [ObservableProperty]
     private string _statusText = "Ready";
 
+    [ObservableProperty]
+    private string _selectedOperation = "Threshold Binarization";
+
     private Image? _currentImage;
     private Image? _originalImageData;
     private string? _originalImagePath;
+    private Stack<Image> _undoStack = new();
+    private const int MaxUndoStackSize = 20;
 
     public List<string> Channels { get; } = new() { "Average", "Red", "Green", "Blue" };
+    
+    public List<string> Operations { get; } = new()
+    {
+        "Threshold Binarization",
+        "Otsu Binarization",
+        "Histogram Stretching",
+        "Histogram Equalization",
+        "Brightness Adjustment",
+        "Contrast Adjustment"
+    };
 
     public MainWindowViewModel()
     {
@@ -110,6 +141,8 @@ public partial class MainWindowViewModel : ViewModelBase
                 _originalImagePath = path;
                 OriginalImage = LoadBitmap(path);
                 ProcessedImage = null;
+                _undoStack.Clear();
+                UndoCommand.NotifyCanExecuteChanged();
 
                 await UpdateHistograms();
 
@@ -196,6 +229,12 @@ public partial class MainWindowViewModel : ViewModelBase
             IsProcessing = true;
             StatusText = "Applying binarization...";
 
+            // Push current state to undo stack before making changes
+            if (_currentImage != null)
+            {
+                PushToUndoStack(_currentImage);
+            }
+
             Image result = null!;
 
             await Task.Run(() =>
@@ -224,6 +263,107 @@ public partial class MainWindowViewModel : ViewModelBase
             StatusText = $"Error applying binarization: {ex.Message}";
             IsProcessing = false;
         }
+    }
+
+    [RelayCommand]
+    private async Task ApplyOperation()
+    {
+        if (_originalImageData == null)
+        {
+            StatusText = "Please load an image first";
+            return;
+        }
+
+        try
+        {
+            IsProcessing = true;
+            StatusText = $"Applying {SelectedOperation}...";
+
+            // Push current state to undo stack before making changes
+            if (_currentImage != null)
+            {
+                PushToUndoStack(_currentImage);
+            }
+
+            Image result = null!;
+            string details = "";
+
+            await Task.Run(() =>
+            {
+                result = SelectedOperation switch
+                {
+                    "Threshold Binarization" => ApplyThresholdBinarization(),
+                    "Otsu Binarization" => ApplyOtsuBinarization(out details),
+                    "Histogram Stretching" => ApplyHistogramStretching(),
+                    "Histogram Equalization" => ApplyHistogramEqualization(),
+                    "Brightness Adjustment" => ApplyBrightnessAdjustment(),
+                    "Contrast Adjustment" => ApplyContrastAdjustment(),
+                    _ => _originalImageData
+                };
+            });
+
+            _currentImage = result;
+            ProcessedImage = ConvertToBitmap(result);
+
+            // Update histograms to show processed image histograms
+            await UpdateHistograms();
+
+            StatusText = string.IsNullOrEmpty(details) 
+                ? $"{SelectedOperation} applied" 
+                : $"{SelectedOperation} applied - {details}";
+            IsProcessing = false;
+        }
+        catch (Exception ex)
+        {
+            StatusText = $"Error applying {SelectedOperation}: {ex.Message}";
+            IsProcessing = false;
+        }
+    }
+
+    private Image ApplyThresholdBinarization()
+    {
+        return SelectedChannel switch
+        {
+            "Red" => ApplyChannelBinarization(Channel.R, _originalImageData!),
+            "Green" => ApplyChannelBinarization(Channel.G, _originalImageData!),
+            "Blue" => ApplyChannelBinarization(Channel.B, _originalImageData!),
+            _ => ThresholdBinarization.ApplyStandard(_originalImageData!, (byte)BinarizationThreshold)
+        };
+    }
+
+    private Image ApplyOtsuBinarization(out string details)
+    {
+        var (result, threshold) = SelectedChannel switch
+        {
+            "Red" => OtsuBinarization.ApplyToChannel(_originalImageData!, Channel.R),
+            "Green" => OtsuBinarization.ApplyToChannel(_originalImageData!, Channel.G),
+            "Blue" => OtsuBinarization.ApplyToChannel(_originalImageData!, Channel.B),
+            _ => OtsuBinarization.Apply(_originalImageData!)
+        };
+        
+        OtsuThreshold = threshold;
+        details = $"Optimal threshold: {threshold}";
+        return result;
+    }
+
+    private Image ApplyHistogramStretching()
+    {
+        return HistogramStretching.Apply(_originalImageData!, (byte)StretchMin, (byte)StretchMax);
+    }
+
+    private Image ApplyHistogramEqualization()
+    {
+        return HistogramEqualization.Apply(_originalImageData!);
+    }
+
+    private Image ApplyBrightnessAdjustment()
+    {
+        return ImageAdjustments.AdjustBrightness(_originalImageData!, BrightnessValue);
+    }
+
+    private Image ApplyContrastAdjustment()
+    {
+        return ImageAdjustments.AdjustContrast(_originalImageData!, ContrastValue);
     }
 
     private Image ApplyChannelBinarization(Channel channel, Image sourceImage)
@@ -334,6 +474,7 @@ public partial class MainWindowViewModel : ViewModelBase
 
             // Clear processed image and update histograms with original data
             ProcessedImage = null;
+            _undoStack.Clear();
             await UpdateHistograms();
             
             StatusText = "Image reset to original";
@@ -344,6 +485,79 @@ public partial class MainWindowViewModel : ViewModelBase
             StatusText = $"Error resetting image: {ex.Message}";
             IsProcessing = false;
         }
+    }
+
+    [RelayCommand(CanExecute = nameof(CanUndo))]
+    private async Task Undo()
+    {
+        if (_undoStack.Count == 0)
+        {
+            StatusText = "Nothing to undo";
+            return;
+        }
+
+        try
+        {
+            IsProcessing = true;
+            StatusText = "Undoing last operation...";
+
+            await Task.Run(() =>
+            {
+                _currentImage = _undoStack.Pop();
+            });
+
+            if (_currentImage != null)
+            {
+                ProcessedImage = ConvertToBitmap(_currentImage);
+                await UpdateHistograms();
+            }
+
+            StatusText = $"Operation undone ({_undoStack.Count} operations in history)";
+            IsProcessing = false;
+            
+            UndoCommand.NotifyCanExecuteChanged();
+        }
+        catch (Exception ex)
+        {
+            StatusText = $"Error undoing operation: {ex.Message}";
+            IsProcessing = false;
+        }
+    }
+
+    private bool CanUndo() => _undoStack.Count > 0;
+
+    private void PushToUndoStack(Image image)
+    {
+        if (image == null) return;
+
+        // Create a deep copy of the image to avoid reference issues
+        var copy = new Image(image.Width, image.Height);
+        for (int x = 0; x < image.Width; x++)
+        {
+            for (int y = 0; y < image.Height; y++)
+            {
+                copy[x, y] = image[x, y];
+            }
+        }
+
+        _undoStack.Push(copy);
+
+        // Limit stack size
+        if (_undoStack.Count > MaxUndoStackSize)
+        {
+            var tempStack = new Stack<Image>();
+            for (int i = 0; i < MaxUndoStackSize; i++)
+            {
+                tempStack.Push(_undoStack.Pop());
+            }
+            _undoStack.Clear();
+            while (tempStack.Count > 0)
+            {
+                _undoStack.Push(tempStack.Pop());
+            }
+        }
+
+        UndoCommand.NotifyCanExecuteChanged();
     }
 
     private Bitmap LoadBitmap(string path)

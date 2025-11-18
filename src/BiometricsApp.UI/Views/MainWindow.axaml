@@ -191,18 +191,32 @@
                 <!-- Edit Group -->
                 <StackPanel Grid.Column="2">
                     <TextBlock Text="EDIT" Classes="caption" Margin="0,0,0,6"/>
-                    <Button Command="{Binding ResetImageCommand}"
-                            Classes="secondary"
-                            IsEnabled="{Binding ProcessedImage, Converter={x:Static ObjectConverters.IsNotNull}}">
-                        <StackPanel Orientation="Horizontal" Spacing="8">
-                            <Viewbox Width="16" Height="16">
-                                <Canvas Width="24" Height="24">
-                                    <Path Fill="#323130" Data="M12,4C14.1,4 16.1,4.8 17.6,6.3C20.7,9.4 20.7,14.5 17.6,17.6C15.8,19.5 13.3,20.2 10.9,19.9L11.4,17.9C13.1,18.1 14.9,17.5 16.2,16.2C18.5,13.9 18.5,10.1 16.2,7.7C15.1,6.6 13.5,6 12,6V10.6L7,5.6L12,0.6V4M6.3,17.6C3.7,15 3.3,11 5.1,7.9L6.6,9.4C5.5,11.6 5.9,14.4 7.8,16.2C8.3,16.7 8.9,17.1 9.6,17.4L9,19.4C8,19 7.1,18.4 6.3,17.6Z"/>
-                                </Canvas>
-                            </Viewbox>
-                            <TextBlock Text="Reset" VerticalAlignment="Center"/>
-                        </StackPanel>
-                    </Button>
+                    <StackPanel Orientation="Horizontal" Spacing="6">
+                        <Button Command="{Binding UndoCommand}"
+                                Classes="secondary">
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <Viewbox Width="16" Height="16">
+                                    <Canvas Width="24" Height="24">
+                                        <Path Fill="#323130" Data="M12.5,8C9.85,8 7.45,9 5.6,10.6L2,7V16H11L7.38,12.38C8.77,11.22 10.54,10.5 12.5,10.5C16.04,10.5 19.05,12.81 20.1,16L22.47,15.22C21.08,11.03 17.15,8 12.5,8Z"/>
+                                    </Canvas>
+                                </Viewbox>
+                                <TextBlock Text="Undo" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Button>
+                        
+                        <Button Command="{Binding ResetImageCommand}"
+                                Classes="secondary"
+                                IsEnabled="{Binding ProcessedImage, Converter={x:Static ObjectConverters.IsNotNull}}">
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <Viewbox Width="16" Height="16">
+                                    <Canvas Width="24" Height="24">
+                                        <Path Fill="#323130" Data="M12,4C14.1,4 16.1,4.8 17.6,6.3C20.7,9.4 20.7,14.5 17.6,17.6C15.8,19.5 13.3,20.2 10.9,19.9L11.4,17.9C13.1,18.1 14.9,17.5 16.2,16.2C18.5,13.9 18.5,10.1 16.2,7.7C15.1,6.6 13.5,6 12,6V10.6L7,5.6L12,0.6V4M6.3,17.6C3.7,15 3.3,11 5.1,7.9L6.6,9.4C5.5,11.6 5.9,14.4 7.8,16.2C8.3,16.7 8.9,17.1 9.6,17.4L9,19.4C8,19 7.1,18.4 6.3,17.6Z"/>
+                                    </Canvas>
+                                </Viewbox>
+                                <TextBlock Text="Reset" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Button>
+                    </StackPanel>
                 </StackPanel>
                 
                 <Separator Grid.Column="3" Width="1" Background="#EDEBE9"/>
@@ -210,16 +224,16 @@
                 <!-- Process Group -->
                 <StackPanel Grid.Column="4">
                     <TextBlock Text="PROCESS" Classes="caption" Margin="0,0,0,6"/>
-                    <Button Command="{Binding ApplyBinarizationCommand}"
+                    <Button Command="{Binding ApplyOperationCommand}"
                             Classes="primary"
                             IsEnabled="{Binding OriginalImage, Converter={x:Static ObjectConverters.IsNotNull}}">
                         <StackPanel Orientation="Horizontal" Spacing="8">
                             <Viewbox Width="16" Height="16">
                                 <Canvas Width="24" Height="24">
-                                    <Path Fill="White" Data="M19,3H5C3.89,3 3,3.89 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V5C21,3.89 20.1,3 19,3M19,5V19H5V5H19M13.96,12.29L11.21,15.83L9.25,13.47L6.5,17H17.5L13.96,12.29Z"/>
+                                    <Path Fill="White" Data="M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M12,4A8,8 0 0,1 20,12A8,8 0 0,1 12,20A8,8 0 0,1 4,12A8,8 0 0,1 12,4M11,6V12L15.5,14.5L16.5,12.9L13,11V6H11Z"/>
                                 </Canvas>
                             </Viewbox>
-                            <TextBlock Text="Apply Binarization" VerticalAlignment="Center"/>
+                            <TextBlock Text="Apply Operation" VerticalAlignment="Center"/>
                         </StackPanel>
                     </Button>
                 </StackPanel>
@@ -301,66 +315,239 @@
                          Background="#EDEBE9"
                          Margin="16,0"/>
 
-            <!-- Right Sidebar - Properties Panel -->
-            <ScrollViewer Grid.Column="2" VerticalScrollBarVisibility="Auto">
-                <StackPanel Spacing="16">
-                    
-                    <!-- Binarization Section -->
-                    <Border Background="White" 
-                            BorderBrush="#EDEBE9" 
-                            BorderThickness="1"
-                            CornerRadius="4"
-                            Padding="20">
-                        <StackPanel Spacing="16">
-                            <TextBlock Text="Binarization Settings" Classes="subtitle"/>
-                            
-                            <Separator Background="#EDEBE9"/>
-                            
-                            <!-- Threshold -->
-                            <StackPanel Spacing="8">
-                                <Grid ColumnDefinitions="*,Auto">
-                                    <TextBlock Grid.Column="0" Text="Threshold Value" Classes="label"/>
-                                    <Border Grid.Column="1" 
-                                            Background="#F3F2F1" 
-                                            CornerRadius="2" 
-                                            Padding="8,4"
-                                            MinWidth="50">
-                                        <TextBlock Text="{Binding BinarizationThreshold}" 
-                                                  FontWeight="Bold"
-                                                  FontSize="14"
-                                                  Foreground="#0078D4"
-                                                  HorizontalAlignment="Center"/>
-                                    </Border>
-                                </Grid>
-                                <Slider Minimum="0" 
-                                       Maximum="255" 
-                                       Value="{Binding BinarizationThreshold}"
-                                       TickFrequency="1"
-                                       IsSnapToTickEnabled="True"
-                                       Foreground="#0078D4"/>
-                                <Grid ColumnDefinitions="*,*,*">
-                                    <TextBlock Grid.Column="0" Text="0" Classes="caption" HorizontalAlignment="Left"/>
-                                    <TextBlock Grid.Column="1" Text="128" Classes="caption" HorizontalAlignment="Center"/>
-                                    <TextBlock Grid.Column="2" Text="255" Classes="caption" HorizontalAlignment="Right"/>
-                                </Grid>
-                            </StackPanel>
+            <!-- Right Sidebar - Operations Panel -->
+            <Border Grid.Column="2" 
+                    Background="White" 
+                    BorderBrush="#EDEBE9" 
+                    BorderThickness="1"
+                    CornerRadius="4">
+                <Grid RowDefinitions="Auto,*">
+                    <!-- Header -->
+                    <Border Grid.Row="0" 
+                            Background="#F3F2F1" 
+                            BorderBrush="#EDEBE9"
+                            BorderThickness="0,0,0,1"
+                            Padding="20,16">
+                        <TextBlock Text="Operations" Classes="subtitle"/>
+                    </Border>
 
-                            <!-- Channel Selection -->
-                            <StackPanel Spacing="8">
-                                <TextBlock Text="Channel" Classes="label"/>
-                                <ComboBox ItemsSource="{Binding Channels}"
-                                         SelectedItem="{Binding SelectedChannel}"
+                    <!-- Content -->
+                    <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+                        <StackPanel Spacing="20" Margin="20">
+                            
+                            <!-- Operation Selection -->
+                            <StackPanel Spacing="10">
+                                <TextBlock Text="Select Operation" Classes="label"/>
+                                <ComboBox ItemsSource="{Binding Operations}"
+                                         SelectedItem="{Binding SelectedOperation}"
                                          HorizontalAlignment="Stretch"
                                          Padding="12,10"
                                          FontSize="14"/>
-                                <TextBlock Text="Select which channel to process" 
+                            </StackPanel>
+
+                            <Separator Background="#EDEBE9"/>
+
+                            <!-- Operation Parameters -->
+                            <!-- Threshold Binarization -->
+                            <StackPanel Spacing="12" 
+                                       IsVisible="{Binding SelectedOperation, Converter={x:Static ObjectConverters.Equal}, ConverterParameter='Threshold Binarization'}">
+                                <TextBlock Text="Threshold Binarization" Classes="subtitle" FontSize="16"/>
+                                
+                                <StackPanel Spacing="8">
+                                    <Grid ColumnDefinitions="*,Auto">
+                                        <TextBlock Grid.Column="0" Text="Threshold" Classes="label"/>
+                                        <Border Grid.Column="1" 
+                                                Background="#0078D4" 
+                                                CornerRadius="2" 
+                                                Padding="8,4"
+                                                MinWidth="50">
+                                            <TextBlock Text="{Binding BinarizationThreshold}" 
+                                                      FontWeight="Bold"
+                                                      FontSize="13"
+                                                      Foreground="White"
+                                                      HorizontalAlignment="Center"/>
+                                        </Border>
+                                    </Grid>
+                                    <Slider Minimum="0" 
+                                           Maximum="255" 
+                                           Value="{Binding BinarizationThreshold}"
+                                           TickFrequency="1"
+                                           IsSnapToTickEnabled="True"
+                                           Foreground="#0078D4"/>
+                                </StackPanel>
+
+                                <StackPanel Spacing="8">
+                                    <TextBlock Text="Channel" Classes="label"/>
+                                    <ComboBox ItemsSource="{Binding Channels}"
+                                             SelectedItem="{Binding SelectedChannel}"
+                                             HorizontalAlignment="Stretch"
+                                             Padding="10,8"/>
+                                </StackPanel>
+                            </StackPanel>
+
+                            <!-- Otsu Binarization -->
+                            <StackPanel Spacing="12"
+                                       IsVisible="{Binding SelectedOperation, Converter={x:Static ObjectConverters.Equal}, ConverterParameter='Otsu Binarization'}">
+                                <TextBlock Text="Otsu Binarization" Classes="subtitle" FontSize="16"/>
+                                <TextBlock Text="Automatic threshold selection using Otsu's method"
                                           Classes="caption"
                                           TextWrapping="Wrap"/>
+                                
+                                <StackPanel Spacing="8">
+                                    <TextBlock Text="Channel" Classes="label"/>
+                                    <ComboBox ItemsSource="{Binding Channels}"
+                                             SelectedItem="{Binding SelectedChannel}"
+                                             HorizontalAlignment="Stretch"
+                                             Padding="10,8"/>
+                                </StackPanel>
+
+                                <Border Background="#E8F4FD" 
+                                        BorderBrush="#0078D4"
+                                        BorderThickness="1"
+                                        CornerRadius="3"
+                                        Padding="12"
+                                        IsVisible="{Binding OtsuThreshold, Converter={x:Static ObjectConverters.NotEqual}, ConverterParameter=128}">
+                                    <StackPanel Spacing="4">
+                                        <TextBlock Text="Calculated Threshold:" 
+                                                  FontSize="11"
+                                                  Foreground="#323130"/>
+                                        <TextBlock Text="{Binding OtsuThreshold}" 
+                                                  FontSize="20"
+                                                  FontWeight="Bold"
+                                                  Foreground="#0078D4"/>
+                                    </StackPanel>
+                                </Border>
                             </StackPanel>
+
+                            <!-- Histogram Stretching -->
+                            <StackPanel Spacing="12"
+                                       IsVisible="{Binding SelectedOperation, Converter={x:Static ObjectConverters.Equal}, ConverterParameter='Histogram Stretching'}">
+                                <TextBlock Text="Histogram Stretching" Classes="subtitle" FontSize="16"/>
+                                <TextBlock Text="Stretch histogram to specified range"
+                                          Classes="caption"
+                                          TextWrapping="Wrap"/>
+                                
+                                <StackPanel Spacing="8">
+                                    <Grid ColumnDefinitions="*,Auto">
+                                        <TextBlock Grid.Column="0" Text="Minimum Output" Classes="label"/>
+                                        <TextBlock Grid.Column="1" 
+                                                  Text="{Binding StretchMin}" 
+                                                  FontWeight="SemiBold"
+                                                  Foreground="#0078D4"/>
+                                    </Grid>
+                                    <Slider Minimum="0" 
+                                           Maximum="255" 
+                                           Value="{Binding StretchMin}"
+                                           TickFrequency="1"
+                                           IsSnapToTickEnabled="True"
+                                           Foreground="#0078D4"/>
+                                </StackPanel>
+
+                                <StackPanel Spacing="8">
+                                    <Grid ColumnDefinitions="*,Auto">
+                                        <TextBlock Grid.Column="0" Text="Maximum Output" Classes="label"/>
+                                        <TextBlock Grid.Column="1" 
+                                                  Text="{Binding StretchMax}" 
+                                                  FontWeight="SemiBold"
+                                                  Foreground="#0078D4"/>
+                                    </Grid>
+                                    <Slider Minimum="0" 
+                                           Maximum="255" 
+                                           Value="{Binding StretchMax}"
+                                           TickFrequency="1"
+                                           IsSnapToTickEnabled="True"
+                                           Foreground="#0078D4"/>
+                                </StackPanel>
+                            </StackPanel>
+
+                            <!-- Histogram Equalization -->
+                            <StackPanel Spacing="12"
+                                       IsVisible="{Binding SelectedOperation, Converter={x:Static ObjectConverters.Equal}, ConverterParameter='Histogram Equalization'}">
+                                <TextBlock Text="Histogram Equalization" Classes="subtitle" FontSize="16"/>
+                                <TextBlock Text="Equalize histogram to improve contrast"
+                                          Classes="caption"
+                                          TextWrapping="Wrap"/>
+                                <Border Background="#F3F2F1" 
+                                        CornerRadius="3"
+                                        Padding="12">
+                                    <TextBlock Text="No parameters required. This operation will automatically distribute pixel intensities across the full range."
+                                              FontSize="12"
+                                              Foreground="#605E5C"
+                                              TextWrapping="Wrap"/>
+                                </Border>
+                            </StackPanel>
+
+                            <!-- Brightness Adjustment -->
+                            <StackPanel Spacing="12"
+                                       IsVisible="{Binding SelectedOperation, Converter={x:Static ObjectConverters.Equal}, ConverterParameter='Brightness Adjustment'}">
+                                <TextBlock Text="Brightness Adjustment" Classes="subtitle" FontSize="16"/>
+                                
+                                <StackPanel Spacing="8">
+                                    <Grid ColumnDefinitions="*,Auto">
+                                        <TextBlock Grid.Column="0" Text="Brightness" Classes="label"/>
+                                        <Border Grid.Column="1" 
+                                                Background="#0078D4" 
+                                                CornerRadius="2" 
+                                                Padding="8,4"
+                                                MinWidth="50">
+                                            <TextBlock Text="{Binding BrightnessValue}" 
+                                                      FontWeight="Bold"
+                                                      FontSize="13"
+                                                      Foreground="White"
+                                                      HorizontalAlignment="Center"/>
+                                        </Border>
+                                    </Grid>
+                                    <Slider Minimum="-255" 
+                                           Maximum="255" 
+                                           Value="{Binding BrightnessValue}"
+                                           TickFrequency="1"
+                                           IsSnapToTickEnabled="True"
+                                           Foreground="#0078D4"/>
+                                    <Grid ColumnDefinitions="*,*,*">
+                                        <TextBlock Grid.Column="0" Text="Darker" Classes="caption" HorizontalAlignment="Left"/>
+                                        <TextBlock Grid.Column="1" Text="0" Classes="caption" HorizontalAlignment="Center"/>
+                                        <TextBlock Grid.Column="2" Text="Brighter" Classes="caption" HorizontalAlignment="Right"/>
+                                    </Grid>
+                                </StackPanel>
+                            </StackPanel>
+
+                            <!-- Contrast Adjustment -->
+                            <StackPanel Spacing="12"
+                                       IsVisible="{Binding SelectedOperation, Converter={x:Static ObjectConverters.Equal}, ConverterParameter='Contrast Adjustment'}">
+                                <TextBlock Text="Contrast Adjustment" Classes="subtitle" FontSize="16"/>
+                                
+                                <StackPanel Spacing="8">
+                                    <Grid ColumnDefinitions="*,Auto">
+                                        <TextBlock Grid.Column="0" Text="Contrast" Classes="label"/>
+                                        <Border Grid.Column="1" 
+                                                Background="#0078D4" 
+                                                CornerRadius="2" 
+                                                Padding="8,4"
+                                                MinWidth="50">
+                                            <TextBlock Text="{Binding ContrastValue, StringFormat='{}{0:F2}'}" 
+                                                      FontWeight="Bold"
+                                                      FontSize="13"
+                                                      Foreground="White"
+                                                      HorizontalAlignment="Center"/>
+                                        </Border>
+                                    </Grid>
+                                    <Slider Minimum="0" 
+                                           Maximum="3" 
+                                           Value="{Binding ContrastValue}"
+                                           TickFrequency="0.1"
+                                           Foreground="#0078D4"/>
+                                    <Grid ColumnDefinitions="*,*,*">
+                                        <TextBlock Grid.Column="0" Text="Lower" Classes="caption" HorizontalAlignment="Left"/>
+                                        <TextBlock Grid.Column="1" Text="Normal (1.0)" Classes="caption" HorizontalAlignment="Center"/>
+                                        <TextBlock Grid.Column="2" Text="Higher" Classes="caption" HorizontalAlignment="Right"/>
+                                    </Grid>
+                                </StackPanel>
+                            </StackPanel>
+
                         </StackPanel>
-                    </Border>
-                </StackPanel>
-            </ScrollViewer>
+                    </ScrollViewer>
+                </Grid>
+            </Border>
         </Grid>
 
         <!-- Footer Status Bar -->
