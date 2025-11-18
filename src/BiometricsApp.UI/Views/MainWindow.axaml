@@ -707,6 +707,221 @@
                                 </Border>
                             </StackPanel>
 
+                            <!-- Convolution Filter -->
+                            <StackPanel Spacing="12"
+                                       IsVisible="{Binding SelectedOperation, Converter={x:Static ObjectConverters.Equal}, ConverterParameter='Convolution Filter'}">
+                                <TextBlock Text="Convolution Filter" Classes="subtitle" FontSize="16"/>
+                                <TextBlock Text="Linear filters based on convolution operation"
+                                          Classes="caption"
+                                          TextWrapping="Wrap"/>
+                                
+                                <StackPanel Spacing="8">
+                                    <TextBlock Text="Kernel Type" Classes="label"/>
+                                    <ComboBox ItemsSource="{Binding ConvolutionKernels}"
+                                             SelectedItem="{Binding SelectedConvolutionKernel}"
+                                             HorizontalAlignment="Stretch"
+                                             Padding="12,10"/>
+                                </StackPanel>
+
+                                <Border Background="#E8F4FD" 
+                                        BorderBrush="#0078D4"
+                                        BorderThickness="1"
+                                        CornerRadius="3"
+                                        Padding="12">
+                                    <StackPanel Spacing="4">
+                                        <TextBlock Text="📋 Kernel Info" 
+                                                  FontSize="11"
+                                                  FontWeight="SemiBold"
+                                                  Foreground="#0078D4"/>
+                                        <TextBlock Text="Choose from various convolution kernels: Gaussian blur for smoothing, Prewitt/Sobel for edge detection, Laplacian for feature enhancement, and more."
+                                                  FontSize="11"
+                                                  Foreground="#323130"
+                                                  TextWrapping="Wrap"/>
+                                    </StackPanel>
+                                </Border>
+                            </StackPanel>
+
+                            <!-- Median Filter -->
+                            <StackPanel Spacing="12"
+                                       IsVisible="{Binding SelectedOperation, Converter={x:Static ObjectConverters.Equal}, ConverterParameter='Median Filter'}">
+                                <TextBlock Text="Median Filter" Classes="subtitle" FontSize="16"/>
+                                <TextBlock Text="Non-linear filter for noise reduction with edge preservation"
+                                          Classes="caption"
+                                          TextWrapping="Wrap"/>
+                                
+                                <StackPanel Spacing="8">
+                                    <Grid ColumnDefinitions="*,Auto">
+                                        <TextBlock Grid.Column="0" Text="Window Size" Classes="label"/>
+                                        <Border Grid.Column="1" 
+                                                Background="#0078D4" 
+                                                CornerRadius="2" 
+                                                Padding="8,4"
+                                                MinWidth="50">
+                                            <TextBlock Text="{Binding MedianFilterSize}" 
+                                                      FontWeight="Bold"
+                                                      FontSize="13"
+                                                      Foreground="White"
+                                                      HorizontalAlignment="Center"/>
+                                        </Border>
+                                    </Grid>
+                                    <Slider Minimum="3" 
+                                           Maximum="21" 
+                                           Value="{Binding MedianFilterSize}"
+                                           TickFrequency="2"
+                                           IsSnapToTickEnabled="True"
+                                           Foreground="#0078D4"/>
+                                    <TextBlock Text="💡 Larger windows remove more noise but may blur edges"
+                                              Classes="caption"
+                                              TextWrapping="Wrap"
+                                              Margin="0,4,0,0"/>
+                                </StackPanel>
+                            </StackPanel>
+
+                            <!-- Pixelization -->
+                            <StackPanel Spacing="12"
+                                       IsVisible="{Binding SelectedOperation, Converter={x:Static ObjectConverters.Equal}, ConverterParameter='Pixelization'}">
+                                <TextBlock Text="Pixelization" Classes="subtitle" FontSize="16"/>
+                                <TextBlock Text="Create a mosaic/pixelated effect"
+                                          Classes="caption"
+                                          TextWrapping="Wrap"/>
+                                
+                                <StackPanel Spacing="8">
+                                    <Grid ColumnDefinitions="*,Auto">
+                                        <TextBlock Grid.Column="0" Text="Pixel Block Size" Classes="label"/>
+                                        <Border Grid.Column="1" 
+                                                Background="#0078D4" 
+                                                CornerRadius="2" 
+                                                Padding="8,4"
+                                                MinWidth="50">
+                                            <TextBlock Text="{Binding PixelizationSize}" 
+                                                      FontWeight="Bold"
+                                                      FontSize="13"
+                                                      Foreground="White"
+                                                      HorizontalAlignment="Center"/>
+                                        </Border>
+                                    </Grid>
+                                    <Slider Minimum="2" 
+                                           Maximum="50" 
+                                           Value="{Binding PixelizationSize}"
+                                           TickFrequency="1"
+                                           IsSnapToTickEnabled="True"
+                                           Foreground="#0078D4"/>
+                                    <Grid ColumnDefinitions="*,*,*">
+                                        <TextBlock Grid.Column="0" Text="Fine" Classes="caption" HorizontalAlignment="Left"/>
+                                        <TextBlock Grid.Column="1" Text="10" Classes="caption" HorizontalAlignment="Center"/>
+                                        <TextBlock Grid.Column="2" Text="Blocky" Classes="caption" HorizontalAlignment="Right"/>
+                                    </Grid>
+                                </StackPanel>
+                            </StackPanel>
+
+                            <!-- Kuwahara Filter -->
+                            <StackPanel Spacing="12"
+                                       IsVisible="{Binding SelectedOperation, Converter={x:Static ObjectConverters.Equal}, ConverterParameter='Kuwahara Filter'}">
+                                <TextBlock Text="Kuwahara Filter" Classes="subtitle" FontSize="16"/>
+                                <TextBlock Text="Edge-preserving smoothing filter (painting-like effect)"
+                                          Classes="caption"
+                                          TextWrapping="Wrap"/>
+                                
+                                <StackPanel Spacing="8">
+                                    <Grid ColumnDefinitions="*,Auto">
+                                        <TextBlock Grid.Column="0" Text="Window Size" Classes="label"/>
+                                        <Border Grid.Column="1" 
+                                                Background="#0078D4" 
+                                                CornerRadius="2" 
+                                                Padding="8,4"
+                                                MinWidth="50">
+                                            <TextBlock Text="{Binding KuwaharaWindowSize}" 
+                                                      FontWeight="Bold"
+                                                      FontSize="13"
+                                                      Foreground="White"
+                                                      HorizontalAlignment="Center"/>
+                                        </Border>
+                                    </Grid>
+                                    <Slider Minimum="3" 
+                                           Maximum="15" 
+                                           Value="{Binding KuwaharaWindowSize}"
+                                           TickFrequency="2"
+                                           IsSnapToTickEnabled="True"
+                                           Foreground="#0078D4"/>
+                                </StackPanel>
+
+                                <Border Background="#E8F4FD" 
+                                        BorderBrush="#0078D4"
+                                        BorderThickness="1"
+                                        CornerRadius="3"
+                                        Padding="12">
+                                    <StackPanel Spacing="4">
+                                        <TextBlock Text="🎨 Artistic Effect" 
+                                                  FontSize="11"
+                                                  FontWeight="SemiBold"
+                                                  Foreground="#0078D4"/>
+                                        <TextBlock Text="Smooths regions while preserving edges, creating a painting-like effect. Great for artistic processing."
+                                                  FontSize="11"
+                                                  Foreground="#323130"
+                                                  TextWrapping="Wrap"/>
+                                    </StackPanel>
+                                </Border>
+                            </StackPanel>
+
+                            <!-- Predator Filter -->
+                            <StackPanel Spacing="12"
+                                       IsVisible="{Binding SelectedOperation, Converter={x:Static ObjectConverters.Equal}, ConverterParameter='Predator Filter'}">
+                                <TextBlock Text="Predator Filter 👾" Classes="subtitle" FontSize="16"/>
+                                <TextBlock Text="Thermal/Predator vision effect (Pixelization + MinRGB + Sobel)"
+                                          Classes="caption"
+                                          TextWrapping="Wrap"/>
+                                
+                                <StackPanel Spacing="8">
+                                    <Grid ColumnDefinitions="*,Auto">
+                                        <TextBlock Grid.Column="0" Text="Pixel Size" Classes="label"/>
+                                        <Border Grid.Column="1" 
+                                                Background="#0078D4" 
+                                                CornerRadius="2" 
+                                                Padding="8,4"
+                                                MinWidth="50">
+                                            <TextBlock Text="{Binding PredatorPixelSize}" 
+                                                      FontWeight="Bold"
+                                                      FontSize="13"
+                                                      Foreground="White"
+                                                      HorizontalAlignment="Center"/>
+                                        </Border>
+                                    </Grid>
+                                    <Slider Minimum="2" 
+                                           Maximum="30" 
+                                           Value="{Binding PredatorPixelSize}"
+                                           TickFrequency="1"
+                                           IsSnapToTickEnabled="True"
+                                           Foreground="#0078D4"/>
+                                </StackPanel>
+
+                                <StackPanel Spacing="8">
+                                    <CheckBox IsChecked="{Binding PredatorColorGrade}"
+                                             Content="Apply Thermal Color Grading"
+                                             FontSize="14"
+                                             FontWeight="SemiBold"/>
+                                    <TextBlock Text="Adds heat-map colors (blue → green → yellow → red)"
+                                              Classes="caption"
+                                              Margin="28,0,0,0"/>
+                                </StackPanel>
+
+                                <Border Background="#1E1E1E" 
+                                        BorderBrush="#00FF00"
+                                        BorderThickness="2"
+                                        CornerRadius="3"
+                                        Padding="12">
+                                    <StackPanel Spacing="4">
+                                        <TextBlock Text="👾 BONUS ALGORITHM" 
+                                                  FontSize="11"
+                                                  FontWeight="Bold"
+                                                  Foreground="#00FF00"/>
+                                        <TextBlock Text="Combines: Pixelization → MinRGB → Sobel Edge Detection"
+                                                  FontSize="11"
+                                                  Foreground="#CCCCCC"
+                                                  TextWrapping="Wrap"/>
+                                    </StackPanel>
+                                </Border>
+                            </StackPanel>
+
                             <!-- Histogram Stretching -->
                             <StackPanel Spacing="12"
                                        IsVisible="{Binding SelectedOperation, Converter={x:Static ObjectConverters.Equal}, ConverterParameter='Histogram Stretching'}">

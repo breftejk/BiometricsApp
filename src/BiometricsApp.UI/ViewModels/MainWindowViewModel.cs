@@ -12,6 +12,7 @@ using BiometricsApp.Core.Models;
 using BiometricsApp.Algorithms.Binarization;
 using BiometricsApp.Algorithms.Histogram;
 using BiometricsApp.Algorithms.Adjustments;
+using BiometricsApp.Algorithms.Filters;
 
 namespace BiometricsApp.UI.ViewModels;
 
@@ -105,6 +106,24 @@ public partial class MainWindowViewModel : ViewModelBase
     private double _adaptiveGradientWeight = 0.3;
 
     [ObservableProperty]
+    private string _selectedConvolutionKernel = "Gaussian Blur 3x3";
+
+    [ObservableProperty]
+    private int _medianFilterSize = 3;
+
+    [ObservableProperty]
+    private int _pixelizationSize = 10;
+
+    [ObservableProperty]
+    private int _kuwaharaWindowSize = 5;
+
+    [ObservableProperty]
+    private int _predatorPixelSize = 10;
+
+    [ObservableProperty]
+    private bool _predatorColorGrade = true;
+
+    [ObservableProperty]
     private bool _isProcessing;
 
     [ObservableProperty]
@@ -121,6 +140,20 @@ public partial class MainWindowViewModel : ViewModelBase
 
     public List<string> Channels { get; } = new() { "Average", "Red", "Green", "Blue" };
     
+    public List<string> ConvolutionKernels { get; } = new()
+    {
+        "Gaussian Blur 3x3",
+        "Gaussian Blur 5x5",
+        "Prewitt",
+        "Sobel",
+        "Sobel Magnitude",
+        "Laplacian 4",
+        "Laplacian 8",
+        "Sharpen",
+        "Edge Detect",
+        "Emboss"
+    };
+    
     public List<string> Operations { get; } = new()
     {
         "Threshold Binarization",
@@ -132,6 +165,11 @@ public partial class MainWindowViewModel : ViewModelBase
         "Li-Wu Binarization",
         "Bernsen Binarization",
         "Adaptive Gradient Binarization",
+        "Convolution Filter",
+        "Median Filter",
+        "Pixelization",
+        "Kuwahara Filter",
+        "Predator Filter",
         "Histogram Stretching",
         "Histogram Equalization",
         "Brightness Adjustment",
@@ -344,6 +382,11 @@ public partial class MainWindowViewModel : ViewModelBase
                     "Li-Wu Binarization" => ApplyLiWuBinarization(out details),
                     "Bernsen Binarization" => ApplyBernsenBinarization(),
                     "Adaptive Gradient Binarization" => ApplyAdaptiveGradientBinarization(),
+                    "Convolution Filter" => ApplyConvolutionFilter(),
+                    "Median Filter" => ApplyMedianFilter(),
+                    "Pixelization" => ApplyPixelization(),
+                    "Kuwahara Filter" => ApplyKuwaharaFilter(),
+                    "Predator Filter" => ApplyPredatorFilter(),
                     "Histogram Stretching" => ApplyHistogramStretching(),
                     "Histogram Equalization" => ApplyHistogramEqualization(),
                     "Brightness Adjustment" => ApplyBrightnessAdjustment(),
@@ -455,6 +498,54 @@ public partial class MainWindowViewModel : ViewModelBase
     private Image ApplyAdaptiveGradientBinarization()
     {
         return AdaptiveGradientBinarization.Apply(_originalImageData!, AdaptiveGradientWindowSize, AdaptiveGradientWeight);
+    }
+
+    private Image ApplyConvolutionFilter()
+    {
+        var kernelType = SelectedConvolutionKernel switch
+        {
+            "Gaussian Blur 3x3" => ConvolutionFilter.KernelType.GaussianBlur3x3,
+            "Gaussian Blur 5x5" => ConvolutionFilter.KernelType.GaussianBlur5x5,
+            "Prewitt" => ConvolutionFilter.KernelType.Prewitt,
+            "Sobel" => ConvolutionFilter.KernelType.Sobel,
+            "Laplacian 4" => ConvolutionFilter.KernelType.Laplacian4,
+            "Laplacian 8" => ConvolutionFilter.KernelType.Laplacian8,
+            "Sharpen" => ConvolutionFilter.KernelType.Sharpen,
+            "Edge Detect" => ConvolutionFilter.KernelType.EdgeDetect,
+            "Emboss" => ConvolutionFilter.KernelType.Emboss,
+            _ => ConvolutionFilter.KernelType.GaussianBlur3x3
+        };
+
+        if (SelectedConvolutionKernel == "Sobel Magnitude")
+        {
+            return ConvolutionFilter.ApplySobelMagnitude(_originalImageData!);
+        }
+
+        return ConvolutionFilter.Apply(_originalImageData!, kernelType);
+    }
+
+    private Image ApplyMedianFilter()
+    {
+        return MedianFilter.Apply(_originalImageData!, MedianFilterSize);
+    }
+
+    private Image ApplyPixelization()
+    {
+        return PixelizationFilter.Apply(_originalImageData!, PixelizationSize);
+    }
+
+    private Image ApplyKuwaharaFilter()
+    {
+        return KuwaharaFilter.Apply(_originalImageData!, KuwaharaWindowSize);
+    }
+
+    private Image ApplyPredatorFilter()
+    {
+        if (PredatorColorGrade)
+        {
+            return PredatorFilter.ApplyWithColorGrade(_originalImageData!, PredatorPixelSize, true);
+        }
+        return PredatorFilter.Apply(_originalImageData!, PredatorPixelSize);
     }
 
     private Image ApplyChannelBinarization(Channel channel, Image sourceImage)
