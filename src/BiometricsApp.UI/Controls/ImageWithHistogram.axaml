@@ -213,11 +213,17 @@
             <Panel>
                 <!-- Checkerboard pattern for transparency -->
                 <Border Background="#FAFAFA">
-                    <Viewbox Stretch="Uniform" Margin="16">
-                        <Image Source="{Binding #root.ImageSource}"
-                              RenderOptions.BitmapInterpolationMode="HighQuality"/>
+                    <Viewbox x:Name="ImageViewbox" Stretch="Uniform" Margin="16">
+                        <Image x:Name="DisplayImage" 
+                               Source="{Binding #root.ImageSource}"
+                               RenderOptions.BitmapInterpolationMode="HighQuality"/>
                     </Viewbox>
                 </Border>
+                <!-- Overlay for capturing pointer events -->
+                <Border x:Name="DrawingOverlay"
+                        Background="Transparent"
+                        Cursor="{Binding #root.DrawingCursor}"
+                        IsVisible="{Binding #root.IsInteractive}"/>
             </Panel>
         </Border>
     </Grid>
