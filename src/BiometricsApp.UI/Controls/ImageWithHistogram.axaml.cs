@@ -237,7 +237,8 @@ public partial class ImageWithHistogram : UserControl
         if (imageX < 0 || imageX >= imageWidth || imageY < 0 || imageY >= imageHeight)
             return null;
 
-        return new Point(Math.Floor(imageX), Math.Floor(imageY));
+        // Use Math.Round for proper rounding instead of Floor to avoid bias
+        return new Point(Math.Round(imageX), Math.Round(imageY));
     }
 }
 

@@ -376,6 +376,12 @@ public partial class MainWindowViewModel : ViewModelBase
 
     private async Task ApplyFloodFillAt(int startX, int startY)
     {
+        if (_originalImageData == null)
+        {
+            StatusText = "No image loaded";
+            return;
+        }
+
         try
         {
             IsProcessing = true;
@@ -386,16 +392,16 @@ public partial class MainWindowViewModel : ViewModelBase
                 PushToUndoStack(_currentImage);
             }
 
-            Image result = null!;
+            var sourceImage = _currentImage ?? _originalImageData;
+            var fillColor = Color.FromRgb(FillColorR, FillColorG, FillColorB);
+            var connectivity = MagicWandEightConnectivity 
+                ? MagicWandTool.Connectivity.Eight 
+                : MagicWandTool.Connectivity.Four;
+            
+            Image? result = null;
             
             await Task.Run(() =>
             {
-                var sourceImage = _currentImage ?? _originalImageData!;
-                var fillColor = Color.FromRgb(FillColorR, FillColorG, FillColorB);
-                var connectivity = MagicWandEightConnectivity 
-                    ? MagicWandTool.Connectivity.Eight 
-                    : MagicWandTool.Connectivity.Four;
-                
                 result = MagicWandTool.FloodFill(
                     sourceImage, 
                     startX, startY, 
@@ -406,12 +412,16 @@ public partial class MainWindowViewModel : ViewModelBase
                     MagicWandGlobalMode);
             });
 
-            _currentImage = result;
-            _drawingCanvas = result; // Update drawing canvas too
-            ProcessedImage = ConvertToBitmap(result);
+            if (result != null)
+            {
+                _currentImage = result;
+                _drawingCanvas = result; // Update drawing canvas too
+                ProcessedImage = ConvertToBitmap(result);
+                
+                await UpdateHistograms();
+                StatusText = $"Flood fill applied at ({startX}, {startY})";
+            }
             
-            await UpdateHistograms();
-            StatusText = $"Flood fill applied at ({startX}, {startY})";
             IsProcessing = false;
         }
         catch (Exception ex)

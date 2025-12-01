@@ -1,3 +1,4 @@
+using System;
 using Avalonia.Controls;
 using BiometricsApp.UI.Controls;
 using BiometricsApp.UI.ViewModels;
@@ -40,7 +41,7 @@ public partial class MainWindow : Window
     {
         if (DataContext is MainWindowViewModel vm)
         {
-            vm.OnDrawingStarted((int)e.From.X, (int)e.From.Y);
+            vm.OnDrawingStarted((int)Math.Round(e.From.X), (int)Math.Round(e.From.Y));
         }
     }
 
@@ -48,7 +49,9 @@ public partial class MainWindow : Window
     {
         if (DataContext is MainWindowViewModel vm)
         {
-            vm.OnDrawing((int)e.From.X, (int)e.From.Y, (int)e.To.X, (int)e.To.Y);
+            vm.OnDrawing(
+                (int)Math.Round(e.From.X), (int)Math.Round(e.From.Y), 
+                (int)Math.Round(e.To.X), (int)Math.Round(e.To.Y));
         }
     }
 
@@ -64,7 +67,7 @@ public partial class MainWindow : Window
     {
         if (DataContext is MainWindowViewModel vm)
         {
-            vm.OnCanvasClicked((int)e.Position.X, (int)e.Position.Y);
+            vm.OnCanvasClicked((int)Math.Round(e.Position.X), (int)Math.Round(e.Position.Y));
         }
     }
 }
