@@ -616,7 +616,7 @@ public partial class MainWindowViewModel : ViewModelBase
         
         // Draw a sample stroke for demonstration
         // In a full implementation, this would be interactive with mouse events
-        var pencilColor = new Color(PencilColorR, PencilColorG, PencilColorB, 255);
+        var pencilColor = Color.FromRgb(PencilColorR, PencilColorG, PencilColorB);
         
         // Draw diagonal lines across the image as a demo
         int centerX = canvas.Width / 2;
@@ -660,7 +660,7 @@ public partial class MainWindowViewModel : ViewModelBase
                 connectivity);
         }
         
-        var highlightColor = new Color(0, 120, 212, 255); // Blue highlight
+        var highlightColor = Color.FromRgb(0, 120, 212); // Blue highlight
         details = $"Selected {mask.SelectedCount} pixels";
         return MagicWandTool.VisualizeSelection(_originalImageData!, mask, highlightColor, 0.5);
     }
@@ -671,7 +671,7 @@ public partial class MainWindowViewModel : ViewModelBase
         int startX = _originalImageData!.Width / 2;
         int startY = _originalImageData!.Height / 2;
         
-        var fillColor = new Color(FillColorR, FillColorG, FillColorB, 255);
+        var fillColor = Color.FromRgb(FillColorR, FillColorG, FillColorB);
         var connectivity = MagicWandEightConnectivity 
             ? MagicWandTool.Connectivity.Eight 
             : MagicWandTool.Connectivity.Four;

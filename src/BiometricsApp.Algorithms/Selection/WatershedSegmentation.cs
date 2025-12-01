@@ -352,14 +352,14 @@ public static class WatershedSegmentation
     private static Color[] GenerateColors(int count)
     {
         var colors = new Color[count];
-        colors[0] = new Color(0, 0, 0, 255);
+        colors[0] = Colors.Black;
         
         for (int i = 1; i < count; i++)
         {
             // Generate distinct colors using HSL
             double hue = (i * 137.508) % 360; // Golden angle
             var (r, g, b) = HslToRgb(hue / 360.0, 0.7, 0.5);
-            colors[i] = new Color((byte)(r * 255), (byte)(g * 255), (byte)(b * 255), 255);
+            colors[i] = Color.FromRgb((byte)(r * 255), (byte)(g * 255), (byte)(b * 255));
         }
         
         return colors;
