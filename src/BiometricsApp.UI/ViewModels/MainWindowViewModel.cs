@@ -223,6 +223,7 @@ public partial class MainWindowViewModel : ViewModelBase
         "Histogram Equalization",
         "Brightness Adjustment",
         "Contrast Adjustment",
+        "Pencil Drawing",
         "Magic Wand Selection",
         "Flood Fill",
         "Dilation",
@@ -445,6 +446,7 @@ public partial class MainWindowViewModel : ViewModelBase
                     "Histogram Equalization" => ApplyHistogramEqualization(),
                     "Brightness Adjustment" => ApplyBrightnessAdjustment(),
                     "Contrast Adjustment" => ApplyContrastAdjustment(),
+                    "Pencil Drawing" => ApplyPencilDrawing(out details),
                     "Magic Wand Selection" => ApplyMagicWandSelection(out details),
                     "Flood Fill" => ApplyFloodFill(out details),
                     "Dilation" => ApplyDilation(),
@@ -605,6 +607,28 @@ public partial class MainWindowViewModel : ViewModelBase
             return PredatorFilter.ApplyWithColorGrade(_originalImageData!, PredatorPixelSize, true);
         }
         return PredatorFilter.Apply(_originalImageData!, PredatorPixelSize);
+    }
+
+    private Image ApplyPencilDrawing(out string details)
+    {
+        // Create a canvas copy of the original image
+        var canvas = PencilTool.CreateDrawingCanvas(_originalImageData!);
+        
+        // Draw a sample stroke for demonstration
+        // In a full implementation, this would be interactive with mouse events
+        var pencilColor = new Color(PencilColorR, PencilColorG, PencilColorB, 255);
+        
+        // Draw diagonal lines across the image as a demo
+        int centerX = canvas.Width / 2;
+        int centerY = canvas.Height / 2;
+        int length = Math.Min(canvas.Width, canvas.Height) / 4;
+        
+        // Draw a crosshair pattern to demonstrate the tool
+        PencilTool.DrawLine(canvas, centerX - length, centerY, centerX + length, centerY, PencilSize, pencilColor);
+        PencilTool.DrawLine(canvas, centerX, centerY - length, centerX, centerY + length, PencilSize, pencilColor);
+        
+        details = $"Drawn with size {PencilSize}, color RGB({PencilColorR}, {PencilColorG}, {PencilColorB})";
+        return canvas;
     }
 
     private Image ApplyMagicWandSelection(out string details)

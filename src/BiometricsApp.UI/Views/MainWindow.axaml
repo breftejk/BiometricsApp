@@ -1047,6 +1047,77 @@
                                 </StackPanel>
                             </StackPanel>
 
+                            <!-- Pencil Drawing -->
+                            <StackPanel Spacing="12"
+                                       IsVisible="{Binding SelectedOperation, Converter={x:Static ObjectConverters.Equal}, ConverterParameter='Pencil Drawing'}">
+                                <TextBlock Text="Pencil Drawing ✏️" Classes="subtitle" FontSize="16"/>
+                                <TextBlock Text="Draw on the image with a pencil tool"
+                                          Classes="caption"
+                                          TextWrapping="Wrap"/>
+                                
+                                <StackPanel Spacing="8">
+                                    <Grid ColumnDefinitions="*,Auto">
+                                        <TextBlock Grid.Column="0" Text="Pencil Size" Classes="label"/>
+                                        <Border Grid.Column="1" 
+                                                Background="#0078D4" 
+                                                CornerRadius="2" 
+                                                Padding="8,4"
+                                                MinWidth="50">
+                                            <TextBlock Text="{Binding PencilSize}" 
+                                                      FontWeight="Bold"
+                                                      FontSize="13"
+                                                      Foreground="White"
+                                                      HorizontalAlignment="Center"/>
+                                        </Border>
+                                    </Grid>
+                                    <Slider Minimum="1" 
+                                           Maximum="50" 
+                                           Value="{Binding PencilSize}"
+                                           TickFrequency="1"
+                                           IsSnapToTickEnabled="True"
+                                           Foreground="#0078D4"/>
+                                </StackPanel>
+
+                                <TextBlock Text="Pencil Color" Classes="label" Margin="0,8,0,4"/>
+                                <Grid ColumnDefinitions="*,*,*" RowDefinitions="Auto,Auto">
+                                    <StackPanel Grid.Column="0" Spacing="4">
+                                        <TextBlock Text="R" Classes="caption" HorizontalAlignment="Center"/>
+                                        <Slider Minimum="0" Maximum="255" Value="{Binding PencilColorR}" 
+                                               TickFrequency="1" IsSnapToTickEnabled="True"/>
+                                        <TextBlock Text="{Binding PencilColorR}" HorizontalAlignment="Center" FontWeight="SemiBold" Foreground="#D32F2F"/>
+                                    </StackPanel>
+                                    <StackPanel Grid.Column="1" Spacing="4">
+                                        <TextBlock Text="G" Classes="caption" HorizontalAlignment="Center"/>
+                                        <Slider Minimum="0" Maximum="255" Value="{Binding PencilColorG}" 
+                                               TickFrequency="1" IsSnapToTickEnabled="True"/>
+                                        <TextBlock Text="{Binding PencilColorG}" HorizontalAlignment="Center" FontWeight="SemiBold" Foreground="#388E3C"/>
+                                    </StackPanel>
+                                    <StackPanel Grid.Column="2" Spacing="4">
+                                        <TextBlock Text="B" Classes="caption" HorizontalAlignment="Center"/>
+                                        <Slider Minimum="0" Maximum="255" Value="{Binding PencilColorB}" 
+                                               TickFrequency="1" IsSnapToTickEnabled="True"/>
+                                        <TextBlock Text="{Binding PencilColorB}" HorizontalAlignment="Center" FontWeight="SemiBold" Foreground="#1976D2"/>
+                                    </StackPanel>
+                                </Grid>
+
+                                <Border Background="#E8F4FD" 
+                                        BorderBrush="#0078D4"
+                                        BorderThickness="1"
+                                        CornerRadius="3"
+                                        Padding="12">
+                                    <StackPanel Spacing="4">
+                                        <TextBlock Text="💡 Demo Mode" 
+                                                  FontSize="11"
+                                                  FontWeight="SemiBold"
+                                                  Foreground="#0078D4"/>
+                                        <TextBlock Text="Click Apply to draw a sample crosshair pattern at the image center. For interactive drawing, use the image canvas directly."
+                                                  FontSize="11"
+                                                  Foreground="#323130"
+                                                  TextWrapping="Wrap"/>
+                                    </StackPanel>
+                                </Border>
+                            </StackPanel>
+
                             <!-- Magic Wand Selection -->
                             <StackPanel Spacing="12"
                                        IsVisible="{Binding SelectedOperation, Converter={x:Static ObjectConverters.Equal}, ConverterParameter='Magic Wand Selection'}">
