@@ -13,6 +13,8 @@ using BiometricsApp.Algorithms.Binarization;
 using BiometricsApp.Algorithms.Histogram;
 using BiometricsApp.Algorithms.Adjustments;
 using BiometricsApp.Algorithms.Filters;
+using BiometricsApp.Algorithms.Selection;
+using BiometricsApp.Algorithms.Drawing;
 
 namespace BiometricsApp.UI.ViewModels;
 
@@ -123,6 +125,51 @@ public partial class MainWindowViewModel : ViewModelBase
     [ObservableProperty]
     private bool _predatorColorGrade = true;
 
+    // Magic Wand / Flood Fill properties
+    [ObservableProperty]
+    private int _magicWandToleranceMin = 0;
+
+    [ObservableProperty]
+    private int _magicWandToleranceMax = 32;
+
+    [ObservableProperty]
+    private int _magicWandMaxPixels = 0;
+
+    [ObservableProperty]
+    private bool _magicWandGlobalMode = false;
+
+    [ObservableProperty]
+    private bool _magicWandEightConnectivity = false;
+
+    [ObservableProperty]
+    private byte _fillColorR = 255;
+
+    [ObservableProperty]
+    private byte _fillColorG = 0;
+
+    [ObservableProperty]
+    private byte _fillColorB = 0;
+
+    // Morphological operations properties
+    [ObservableProperty]
+    private int _morphKernelSize = 3;
+
+    [ObservableProperty]
+    private string _selectedMorphShape = "Square";
+
+    // Pencil tool properties
+    [ObservableProperty]
+    private int _pencilSize = 3;
+
+    [ObservableProperty]
+    private byte _pencilColorR = 0;
+
+    [ObservableProperty]
+    private byte _pencilColorG = 0;
+
+    [ObservableProperty]
+    private byte _pencilColorB = 0;
+
     [ObservableProperty]
     private bool _isProcessing;
 
@@ -153,6 +200,8 @@ public partial class MainWindowViewModel : ViewModelBase
         "Edge Detect",
         "Emboss"
     };
+
+    public List<string> MorphShapes { get; } = new() { "Square", "Cross", "Circle" };
     
     public List<string> Operations { get; } = new()
     {
@@ -173,7 +222,13 @@ public partial class MainWindowViewModel : ViewModelBase
         "Histogram Stretching",
         "Histogram Equalization",
         "Brightness Adjustment",
-        "Contrast Adjustment"
+        "Contrast Adjustment",
+        "Pencil Drawing",
+        "Magic Wand Selection",
+        "Flood Fill",
+        "Dilation",
+        "Erosion",
+        "Watershed Segmentation"
     };
 
     public MainWindowViewModel()
@@ -391,6 +446,12 @@ public partial class MainWindowViewModel : ViewModelBase
                     "Histogram Equalization" => ApplyHistogramEqualization(),
                     "Brightness Adjustment" => ApplyBrightnessAdjustment(),
                     "Contrast Adjustment" => ApplyContrastAdjustment(),
+                    "Pencil Drawing" => ApplyPencilDrawing(out details),
+                    "Magic Wand Selection" => ApplyMagicWandSelection(out details),
+                    "Flood Fill" => ApplyFloodFill(out details),
+                    "Dilation" => ApplyDilation(),
+                    "Erosion" => ApplyErosion(),
+                    "Watershed Segmentation" => ApplyWatershedSegmentation(),
                     _ => _originalImageData
                 };
             });
@@ -546,6 +607,115 @@ public partial class MainWindowViewModel : ViewModelBase
             return PredatorFilter.ApplyWithColorGrade(_originalImageData!, PredatorPixelSize, true);
         }
         return PredatorFilter.Apply(_originalImageData!, PredatorPixelSize);
+    }
+
+    private Image ApplyPencilDrawing(out string details)
+    {
+        // Create a canvas copy of the original image
+        var canvas = PencilTool.CreateDrawingCanvas(_originalImageData!);
+        
+        // Draw a sample stroke for demonstration
+        // In a full implementation, this would be interactive with mouse events
+        var pencilColor = Color.FromRgb(PencilColorR, PencilColorG, PencilColorB);
+        
+        // Draw diagonal lines across the image as a demo
+        int centerX = canvas.Width / 2;
+        int centerY = canvas.Height / 2;
+        int length = Math.Min(canvas.Width, canvas.Height) / 4;
+        
+        // Draw a crosshair pattern to demonstrate the tool
+        PencilTool.DrawLine(canvas, centerX - length, centerY, centerX + length, centerY, PencilSize, pencilColor);
+        PencilTool.DrawLine(canvas, centerX, centerY - length, centerX, centerY + length, PencilSize, pencilColor);
+        
+        details = $"Drawn with size {PencilSize}, color RGB({PencilColorR}, {PencilColorG}, {PencilColorB})";
+        return canvas;
+    }
+
+    private Image ApplyMagicWandSelection(out string details)
+    {
+        // Use center of image as starting point for demo
+        int startX = _originalImageData!.Width / 2;
+        int startY = _originalImageData!.Height / 2;
+        
+        var connectivity = MagicWandEightConnectivity 
+            ? MagicWandTool.Connectivity.Eight 
+            : MagicWandTool.Connectivity.Four;
+        
+        MagicWandTool.SelectionMask mask;
+        if (MagicWandGlobalMode)
+        {
+            mask = MagicWandTool.SelectGlobal(
+                _originalImageData!, 
+                startX, startY, 
+                MagicWandToleranceMin, MagicWandToleranceMax, 
+                MagicWandMaxPixels);
+        }
+        else
+        {
+            mask = MagicWandTool.SelectContiguous(
+                _originalImageData!, 
+                startX, startY, 
+                MagicWandToleranceMin, MagicWandToleranceMax, 
+                MagicWandMaxPixels, 
+                connectivity);
+        }
+        
+        var highlightColor = Color.FromRgb(0, 120, 212); // Blue highlight
+        details = $"Selected {mask.SelectedCount} pixels";
+        return MagicWandTool.VisualizeSelection(_originalImageData!, mask, highlightColor, 0.5);
+    }
+
+    private Image ApplyFloodFill(out string details)
+    {
+        // Use center of image as starting point for demo
+        int startX = _originalImageData!.Width / 2;
+        int startY = _originalImageData!.Height / 2;
+        
+        var fillColor = Color.FromRgb(FillColorR, FillColorG, FillColorB);
+        var connectivity = MagicWandEightConnectivity 
+            ? MagicWandTool.Connectivity.Eight 
+            : MagicWandTool.Connectivity.Four;
+        
+        var result = MagicWandTool.FloodFill(
+            _originalImageData!, 
+            startX, startY, 
+            fillColor,
+            MagicWandToleranceMin, MagicWandToleranceMax, 
+            MagicWandMaxPixels, 
+            connectivity,
+            MagicWandGlobalMode);
+        
+        details = $"Filled with RGB({FillColorR}, {FillColorG}, {FillColorB})";
+        return result;
+    }
+
+    private Image ApplyDilation()
+    {
+        var shape = SelectedMorphShape switch
+        {
+            "Cross" => MorphologicalOperations.KernelShape.Cross,
+            "Circle" => MorphologicalOperations.KernelShape.Circle,
+            _ => MorphologicalOperations.KernelShape.Square
+        };
+        
+        return MorphologicalOperations.DilateImage(_originalImageData!, MorphKernelSize, shape);
+    }
+
+    private Image ApplyErosion()
+    {
+        var shape = SelectedMorphShape switch
+        {
+            "Cross" => MorphologicalOperations.KernelShape.Cross,
+            "Circle" => MorphologicalOperations.KernelShape.Circle,
+            _ => MorphologicalOperations.KernelShape.Square
+        };
+        
+        return MorphologicalOperations.ErodeImage(_originalImageData!, MorphKernelSize, shape);
+    }
+
+    private Image ApplyWatershedSegmentation()
+    {
+        return WatershedSegmentation.Apply(_originalImageData!);
     }
 
     private Image ApplyChannelBinarization(Channel channel, Image sourceImage)
