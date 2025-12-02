@@ -269,7 +269,7 @@
                         HistogramAverage="{Binding HistogramAverageOriginal}"/>
                 </Border>
 
-                <!-- Processed Image -->
+                <!-- Processed Image (Interactive for Drawing) -->
                 <Border Grid.Row="2" 
                         Background="White" 
                         BorderBrush="#EDEBE9" 
@@ -278,31 +278,55 @@
                         Padding="16"
                         IsVisible="{Binding ProcessedImage, Converter={x:Static ObjectConverters.IsNotNull}}">
                     <controls:ImageWithHistogram 
-                        Title="Processed Image"
+                        x:Name="ProcessedImageControl"
+                        Title="Processed Image (Interactive)"
                         ImageSource="{Binding ProcessedImage}"
                         HistogramRed="{Binding HistogramRedProcessed}"
                         HistogramGreen="{Binding HistogramGreenProcessed}"
                         HistogramBlue="{Binding HistogramBlueProcessed}"
-                        HistogramAverage="{Binding HistogramAverageProcessed}"/>
+                        HistogramAverage="{Binding HistogramAverageProcessed}"
+                        IsInteractive="{Binding IsDrawingModeActive}"
+                        BrushSize="{Binding PencilSize}"/>
                 </Border>
                 
-                <!-- Placeholder when no processed image -->
+                <!-- Original Image becomes interactive when no processed image -->
+                <Border Grid.Row="2" 
+                        Background="White" 
+                        BorderBrush="#EDEBE9" 
+                        BorderThickness="1"
+                        CornerRadius="4"
+                        Padding="16"
+                        IsVisible="{Binding ProcessedImage, Converter={x:Static ObjectConverters.IsNull}}">
+                    <controls:ImageWithHistogram 
+                        x:Name="OriginalImageInteractive"
+                        Title="Draw Here (Interactive)"
+                        ImageSource="{Binding OriginalImage}"
+                        HistogramRed="{Binding HistogramRedOriginal}"
+                        HistogramGreen="{Binding HistogramGreenOriginal}"
+                        HistogramBlue="{Binding HistogramBlueOriginal}"
+                        HistogramAverage="{Binding HistogramAverageOriginal}"
+                        IsInteractive="{Binding IsDrawingModeActive}"
+                        BrushSize="{Binding PencilSize}"
+                        IsVisible="{Binding OriginalImage, Converter={x:Static ObjectConverters.IsNotNull}}"/>
+                </Border>
+                
+                <!-- Placeholder when no image at all -->
                 <Border Grid.Row="2" 
                         Background="#FAFAFA" 
                         BorderBrush="#EDEBE9" 
                         BorderThickness="2"
                         CornerRadius="4"
-                        IsVisible="{Binding ProcessedImage, Converter={x:Static ObjectConverters.IsNull}}">
+                        IsVisible="{Binding OriginalImage, Converter={x:Static ObjectConverters.IsNull}}">
                     <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Spacing="12">
                         <Viewbox Width="64" Height="64" Opacity="0.3">
                             <Canvas Width="24" Height="24">
                                 <Path Fill="#8A8886" Data="M19,13H13V19H11V13H5V11H11V5H13V11H19V13Z"/>
                             </Canvas>
                         </Viewbox>
-                        <TextBlock Text="Processed image will appear here" 
+                        <TextBlock Text="Load an image to start" 
                                   Classes="caption"
                                   HorizontalAlignment="Center"/>
-                        <TextBlock Text="Apply an operation to see results" 
+                        <TextBlock Text="Click Open to load an image" 
                                   FontSize="11"
                                   Foreground="#C8C6C4"
                                   HorizontalAlignment="Center"/>
@@ -333,19 +357,129 @@
 
                     <!-- Content -->
                     <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
-                        <StackPanel Spacing="20" Margin="20">
+                        <StackPanel Spacing="12" Margin="16">
                             
-                            <!-- Operation Selection -->
-                            <StackPanel Spacing="10">
-                                <TextBlock Text="Select Operation" Classes="label"/>
-                                <ComboBox ItemsSource="{Binding Operations}"
-                                         SelectedItem="{Binding SelectedOperation}"
-                                         HorizontalAlignment="Stretch"
-                                         Padding="12,10"
-                                         FontSize="14"/>
-                            </StackPanel>
+                            <!-- Grouped Operation Selection with Expanders -->
+                            <TextBlock Text="Select Operation" Classes="label" Margin="4,0,0,4"/>
+                            
+                            <!-- 📊 Binarization Group -->
+                            <Expander IsExpanded="True" HorizontalAlignment="Stretch">
+                                <Expander.Header>
+                                    <TextBlock Text="📊 Binarization" FontWeight="SemiBold" FontSize="14"/>
+                                </Expander.Header>
+                                <StackPanel Spacing="4" Margin="8,8,8,4">
+                                    <RadioButton GroupName="Operations" Content="Threshold" 
+                                                IsChecked="{Binding SelectedOperation, Converter={x:Static ObjectConverters.Equal}, ConverterParameter='Threshold Binarization'}"
+                                                Command="{Binding SelectOperationCommand}" CommandParameter="Threshold Binarization"/>
+                                    <RadioButton GroupName="Operations" Content="Otsu (Auto)" 
+                                                IsChecked="{Binding SelectedOperation, Converter={x:Static ObjectConverters.Equal}, ConverterParameter='Otsu Binarization'}"
+                                                Command="{Binding SelectOperationCommand}" CommandParameter="Otsu Binarization"/>
+                                    <RadioButton GroupName="Operations" Content="Niblack" 
+                                                IsChecked="{Binding SelectedOperation, Converter={x:Static ObjectConverters.Equal}, ConverterParameter='Niblack Binarization'}"
+                                                Command="{Binding SelectOperationCommand}" CommandParameter="Niblack Binarization"/>
+                                    <RadioButton GroupName="Operations" Content="Sauvola" 
+                                                IsChecked="{Binding SelectedOperation, Converter={x:Static ObjectConverters.Equal}, ConverterParameter='Sauvola Binarization'}"
+                                                Command="{Binding SelectOperationCommand}" CommandParameter="Sauvola Binarization"/>
+                                    <RadioButton GroupName="Operations" Content="Phansalkar" 
+                                                IsChecked="{Binding SelectedOperation, Converter={x:Static ObjectConverters.Equal}, ConverterParameter='Phansalkar Binarization'}"
+                                                Command="{Binding SelectOperationCommand}" CommandParameter="Phansalkar Binarization"/>
+                                    <RadioButton GroupName="Operations" Content="Kapur (Entropy)" 
+                                                IsChecked="{Binding SelectedOperation, Converter={x:Static ObjectConverters.Equal}, ConverterParameter='Kapur Binarization'}"
+                                                Command="{Binding SelectOperationCommand}" CommandParameter="Kapur Binarization"/>
+                                    <RadioButton GroupName="Operations" Content="Li-Wu" 
+                                                IsChecked="{Binding SelectedOperation, Converter={x:Static ObjectConverters.Equal}, ConverterParameter='Li-Wu Binarization'}"
+                                                Command="{Binding SelectOperationCommand}" CommandParameter="Li-Wu Binarization"/>
+                                    <RadioButton GroupName="Operations" Content="Bernsen" 
+                                                IsChecked="{Binding SelectedOperation, Converter={x:Static ObjectConverters.Equal}, ConverterParameter='Bernsen Binarization'}"
+                                                Command="{Binding SelectOperationCommand}" CommandParameter="Bernsen Binarization"/>
+                                    <RadioButton GroupName="Operations" Content="Adaptive Gradient" 
+                                                IsChecked="{Binding SelectedOperation, Converter={x:Static ObjectConverters.Equal}, ConverterParameter='Adaptive Gradient Binarization'}"
+                                                Command="{Binding SelectOperationCommand}" CommandParameter="Adaptive Gradient Binarization"/>
+                                </StackPanel>
+                            </Expander>
+                            
+                            <!-- 🎨 Filters Group -->
+                            <Expander HorizontalAlignment="Stretch">
+                                <Expander.Header>
+                                    <TextBlock Text="🎨 Filters" FontWeight="SemiBold" FontSize="14"/>
+                                </Expander.Header>
+                                <StackPanel Spacing="4" Margin="8,8,8,4">
+                                    <RadioButton GroupName="Operations" Content="Convolution" 
+                                                IsChecked="{Binding SelectedOperation, Converter={x:Static ObjectConverters.Equal}, ConverterParameter='Convolution Filter'}"
+                                                Command="{Binding SelectOperationCommand}" CommandParameter="Convolution Filter"/>
+                                    <RadioButton GroupName="Operations" Content="Median" 
+                                                IsChecked="{Binding SelectedOperation, Converter={x:Static ObjectConverters.Equal}, ConverterParameter='Median Filter'}"
+                                                Command="{Binding SelectOperationCommand}" CommandParameter="Median Filter"/>
+                                    <RadioButton GroupName="Operations" Content="Pixelization" 
+                                                IsChecked="{Binding SelectedOperation, Converter={x:Static ObjectConverters.Equal}, ConverterParameter='Pixelization'}"
+                                                Command="{Binding SelectOperationCommand}" CommandParameter="Pixelization"/>
+                                    <RadioButton GroupName="Operations" Content="Kuwahara" 
+                                                IsChecked="{Binding SelectedOperation, Converter={x:Static ObjectConverters.Equal}, ConverterParameter='Kuwahara Filter'}"
+                                                Command="{Binding SelectOperationCommand}" CommandParameter="Kuwahara Filter"/>
+                                    <RadioButton GroupName="Operations" Content="Predator 👾" 
+                                                IsChecked="{Binding SelectedOperation, Converter={x:Static ObjectConverters.Equal}, ConverterParameter='Predator Filter'}"
+                                                Command="{Binding SelectOperationCommand}" CommandParameter="Predator Filter"/>
+                                </StackPanel>
+                            </Expander>
+                            
+                            <!-- 📈 Histogram & Adjustments Group -->
+                            <Expander HorizontalAlignment="Stretch">
+                                <Expander.Header>
+                                    <TextBlock Text="📈 Adjustments" FontWeight="SemiBold" FontSize="14"/>
+                                </Expander.Header>
+                                <StackPanel Spacing="4" Margin="8,8,8,4">
+                                    <RadioButton GroupName="Operations" Content="Histogram Stretching" 
+                                                IsChecked="{Binding SelectedOperation, Converter={x:Static ObjectConverters.Equal}, ConverterParameter='Histogram Stretching'}"
+                                                Command="{Binding SelectOperationCommand}" CommandParameter="Histogram Stretching"/>
+                                    <RadioButton GroupName="Operations" Content="Histogram Equalization" 
+                                                IsChecked="{Binding SelectedOperation, Converter={x:Static ObjectConverters.Equal}, ConverterParameter='Histogram Equalization'}"
+                                                Command="{Binding SelectOperationCommand}" CommandParameter="Histogram Equalization"/>
+                                    <RadioButton GroupName="Operations" Content="Brightness" 
+                                                IsChecked="{Binding SelectedOperation, Converter={x:Static ObjectConverters.Equal}, ConverterParameter='Brightness Adjustment'}"
+                                                Command="{Binding SelectOperationCommand}" CommandParameter="Brightness Adjustment"/>
+                                    <RadioButton GroupName="Operations" Content="Contrast" 
+                                                IsChecked="{Binding SelectedOperation, Converter={x:Static ObjectConverters.Equal}, ConverterParameter='Contrast Adjustment'}"
+                                                Command="{Binding SelectOperationCommand}" CommandParameter="Contrast Adjustment"/>
+                                </StackPanel>
+                            </Expander>
+                            
+                            <!-- ✏️ Drawing Tools Group -->
+                            <Expander HorizontalAlignment="Stretch">
+                                <Expander.Header>
+                                    <TextBlock Text="✏️ Drawing Tools" FontWeight="SemiBold" FontSize="14"/>
+                                </Expander.Header>
+                                <StackPanel Spacing="4" Margin="8,8,8,4">
+                                    <RadioButton GroupName="Operations" Content="Pencil (Freehand)" 
+                                                IsChecked="{Binding SelectedOperation, Converter={x:Static ObjectConverters.Equal}, ConverterParameter='Pencil Drawing'}"
+                                                Command="{Binding SelectOperationCommand}" CommandParameter="Pencil Drawing"/>
+                                    <RadioButton GroupName="Operations" Content="Flood Fill (Bucket)" 
+                                                IsChecked="{Binding SelectedOperation, Converter={x:Static ObjectConverters.Equal}, ConverterParameter='Flood Fill'}"
+                                                Command="{Binding SelectOperationCommand}" CommandParameter="Flood Fill"/>
+                                </StackPanel>
+                            </Expander>
+                            
+                            <!-- 🔍 Selection & Morphology Group -->
+                            <Expander HorizontalAlignment="Stretch">
+                                <Expander.Header>
+                                    <TextBlock Text="🔍 Selection &amp; Morphology" FontWeight="SemiBold" FontSize="14"/>
+                                </Expander.Header>
+                                <StackPanel Spacing="4" Margin="8,8,8,4">
+                                    <RadioButton GroupName="Operations" Content="Magic Wand" 
+                                                IsChecked="{Binding SelectedOperation, Converter={x:Static ObjectConverters.Equal}, ConverterParameter='Magic Wand Selection'}"
+                                                Command="{Binding SelectOperationCommand}" CommandParameter="Magic Wand Selection"/>
+                                    <RadioButton GroupName="Operations" Content="Dilation (Expand)" 
+                                                IsChecked="{Binding SelectedOperation, Converter={x:Static ObjectConverters.Equal}, ConverterParameter='Dilation'}"
+                                                Command="{Binding SelectOperationCommand}" CommandParameter="Dilation"/>
+                                    <RadioButton GroupName="Operations" Content="Erosion (Shrink)" 
+                                                IsChecked="{Binding SelectedOperation, Converter={x:Static ObjectConverters.Equal}, ConverterParameter='Erosion'}"
+                                                Command="{Binding SelectOperationCommand}" CommandParameter="Erosion"/>
+                                    <RadioButton GroupName="Operations" Content="Watershed" 
+                                                IsChecked="{Binding SelectedOperation, Converter={x:Static ObjectConverters.Equal}, ConverterParameter='Watershed Segmentation'}"
+                                                Command="{Binding SelectOperationCommand}" CommandParameter="Watershed Segmentation"/>
+                                </StackPanel>
+                            </Expander>
 
-                            <Separator Background="#EDEBE9"/>
+                            <Separator Background="#EDEBE9" Margin="0,4,0,0"/>
 
                             <!-- Operation Parameters -->
                             <!-- Threshold Binarization -->
@@ -1100,19 +1234,17 @@
                                     </StackPanel>
                                 </Grid>
 
-                                <Border Background="#E8F4FD" 
-                                        BorderBrush="#0078D4"
-                                        BorderThickness="1"
+                                <Border Background="#107C10" 
                                         CornerRadius="3"
                                         Padding="12">
                                     <StackPanel Spacing="4">
-                                        <TextBlock Text="💡 Demo Mode" 
+                                        <TextBlock Text="🖱️ Freehand Drawing Mode Active!" 
                                                   FontSize="11"
                                                   FontWeight="SemiBold"
-                                                  Foreground="#0078D4"/>
-                                        <TextBlock Text="Click Apply to draw a sample crosshair pattern at the image center. For interactive drawing, use the image canvas directly."
+                                                  Foreground="White"/>
+                                        <TextBlock Text="Click and drag on the image below to draw freehand strokes with your mouse. Your strokes will appear immediately."
                                                   FontSize="11"
-                                                  Foreground="#323130"
+                                                  Foreground="White"
                                                   TextWrapping="Wrap"/>
                                     </StackPanel>
                                 </Border>
@@ -1264,7 +1396,22 @@
                                 </StackPanel>
 
                                 <CheckBox IsChecked="{Binding MagicWandGlobalMode}" Content="Global Flood Mode" FontSize="14" FontWeight="SemiBold"/>
-                                <CheckBox IsChecked="{Binding MagicWandEightConnectivity}" Content="8-Connectivity" FontSize="14" FontWeight="SemiBold"/>
+                                <CheckBox IsChecked="{Binding MagicWandEightConnectivity}" Content="8-Connectivity (smoother fills)" FontSize="14" FontWeight="SemiBold"/>
+                                
+                                <Border Background="#107C10" 
+                                        CornerRadius="3"
+                                        Padding="12">
+                                    <StackPanel Spacing="4">
+                                        <TextBlock Text="🖱️ Click to Fill!" 
+                                                  FontSize="11"
+                                                  FontWeight="SemiBold"
+                                                  Foreground="White"/>
+                                        <TextBlock Text="Click anywhere on the image below to flood fill from that point. 8-connectivity gives smoother, more circular fills instead of diamond shapes."
+                                                  FontSize="11"
+                                                  Foreground="White"
+                                                  TextWrapping="Wrap"/>
+                                    </StackPanel>
+                                </Border>
                             </StackPanel>
 
                             <!-- Dilation -->

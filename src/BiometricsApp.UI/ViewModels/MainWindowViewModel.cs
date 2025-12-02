@@ -139,7 +139,7 @@ public partial class MainWindowViewModel : ViewModelBase
     private bool _magicWandGlobalMode = false;
 
     [ObservableProperty]
-    private bool _magicWandEightConnectivity = false;
+    private bool _magicWandEightConnectivity = true;  // Default to 8-connectivity for more natural fills
 
     [ObservableProperty]
     private byte _fillColorR = 255;
@@ -179,8 +179,12 @@ public partial class MainWindowViewModel : ViewModelBase
     [ObservableProperty]
     private string _selectedOperation = "Threshold Binarization";
 
+    [ObservableProperty]
+    private bool _isDrawingModeActive;
+
     private Image? _currentImage;
     private Image? _originalImageData;
+    private Image? _drawingCanvas;
     private string? _originalImagePath;
     private Stack<Image> _undoStack = new();
     private const int MaxUndoStackSize = 20;
@@ -202,6 +206,52 @@ public partial class MainWindowViewModel : ViewModelBase
     };
 
     public List<string> MorphShapes { get; } = new() { "Square", "Cross", "Circle" };
+
+    /// <summary>
+    /// Grouped operations organized by category
+    /// </summary>
+    public Dictionary<string, List<string>> OperationGroups { get; } = new()
+    {
+        ["📊 Binarization"] = new()
+        {
+            "Threshold Binarization",
+            "Otsu Binarization",
+            "Niblack Binarization",
+            "Sauvola Binarization",
+            "Phansalkar Binarization",
+            "Kapur Binarization",
+            "Li-Wu Binarization",
+            "Bernsen Binarization",
+            "Adaptive Gradient Binarization"
+        },
+        ["🎨 Filters"] = new()
+        {
+            "Convolution Filter",
+            "Median Filter",
+            "Pixelization",
+            "Kuwahara Filter",
+            "Predator Filter"
+        },
+        ["📈 Histogram & Adjustments"] = new()
+        {
+            "Histogram Stretching",
+            "Histogram Equalization",
+            "Brightness Adjustment",
+            "Contrast Adjustment"
+        },
+        ["✏️ Drawing Tools"] = new()
+        {
+            "Pencil Drawing",
+            "Flood Fill"
+        },
+        ["🔍 Selection & Morphology"] = new()
+        {
+            "Magic Wand Selection",
+            "Dilation",
+            "Erosion",
+            "Watershed Segmentation"
+        }
+    };
     
     public List<string> Operations { get; } = new()
     {
@@ -233,6 +283,158 @@ public partial class MainWindowViewModel : ViewModelBase
 
     public MainWindowViewModel()
     {
+    }
+
+    [RelayCommand]
+    private void SelectOperation(string operation)
+    {
+        if (!string.IsNullOrEmpty(operation))
+        {
+            SelectedOperation = operation;
+            // Enable interactive mode for pencil tool and flood fill
+            IsDrawingModeActive = operation == "Pencil Drawing" || operation == "Flood Fill";
+            
+            if (operation == "Pencil Drawing" && _originalImageData != null && _drawingCanvas == null)
+            {
+                // Initialize drawing canvas with a copy of the original image
+                _drawingCanvas = PencilTool.CreateDrawingCanvas(_originalImageData);
+            }
+        }
+    }
+
+    /// <summary>
+    /// Handle drawing start event from the canvas
+    /// </summary>
+    public void OnDrawingStarted(int x, int y)
+    {
+        // Only handle drawing for pencil tool, not flood fill
+        if (SelectedOperation != "Pencil Drawing" || _originalImageData == null) return;
+        
+        // Initialize drawing canvas if not already done
+        if (_drawingCanvas == null)
+        {
+            _drawingCanvas = PencilTool.CreateDrawingCanvas(_originalImageData);
+        }
+        
+        // Push current state for undo
+        if (_currentImage != null)
+        {
+            PushToUndoStack(_currentImage);
+        }
+        
+        var pencilColor = Color.FromRgb(PencilColorR, PencilColorG, PencilColorB);
+        
+        if (PencilSize <= 1)
+        {
+            PencilTool.DrawPixel(_drawingCanvas, x, y, pencilColor);
+        }
+        else
+        {
+            PencilTool.DrawCircle(_drawingCanvas, x, y, PencilSize / 2, pencilColor);
+        }
+        
+        UpdateDrawingPreview();
+    }
+
+    /// <summary>
+    /// Handle drawing event from the canvas (line between points)
+    /// </summary>
+    public void OnDrawing(int fromX, int fromY, int toX, int toY)
+    {
+        // Only handle drawing for pencil tool
+        if (SelectedOperation != "Pencil Drawing" || _drawingCanvas == null) return;
+        
+        var pencilColor = Color.FromRgb(PencilColorR, PencilColorG, PencilColorB);
+        PencilTool.DrawLine(_drawingCanvas, fromX, fromY, toX, toY, PencilSize, pencilColor);
+        
+        UpdateDrawingPreview();
+    }
+
+    /// <summary>
+    /// Handle drawing end event from the canvas
+    /// </summary>
+    public void OnDrawingEnded()
+    {
+        // Only handle drawing for pencil tool
+        if (SelectedOperation != "Pencil Drawing" || _drawingCanvas == null) return;
+        
+        // Set the current image to the drawing canvas
+        _currentImage = _drawingCanvas;
+        StatusText = "Drawing stroke completed";
+    }
+
+    /// <summary>
+    /// Handle click on canvas for flood fill
+    /// </summary>
+    public void OnCanvasClicked(int x, int y)
+    {
+        if (SelectedOperation == "Flood Fill" && _originalImageData != null)
+        {
+            _ = ApplyFloodFillAt(x, y);
+        }
+    }
+
+    private async Task ApplyFloodFillAt(int startX, int startY)
+    {
+        if (_originalImageData == null)
+        {
+            StatusText = "No image loaded";
+            return;
+        }
+
+        try
+        {
+            IsProcessing = true;
+            StatusText = $"Applying flood fill at ({startX}, {startY})...";
+            
+            if (_currentImage != null)
+            {
+                PushToUndoStack(_currentImage);
+            }
+
+            var sourceImage = _currentImage ?? _originalImageData;
+            var fillColor = Color.FromRgb(FillColorR, FillColorG, FillColorB);
+            var connectivity = MagicWandEightConnectivity 
+                ? MagicWandTool.Connectivity.Eight 
+                : MagicWandTool.Connectivity.Four;
+            
+            Image? result = null;
+            
+            await Task.Run(() =>
+            {
+                result = MagicWandTool.FloodFill(
+                    sourceImage, 
+                    startX, startY, 
+                    fillColor,
+                    MagicWandToleranceMin, MagicWandToleranceMax, 
+                    MagicWandMaxPixels, 
+                    connectivity,
+                    MagicWandGlobalMode);
+            });
+
+            if (result != null)
+            {
+                _currentImage = result;
+                _drawingCanvas = result; // Update drawing canvas too
+                ProcessedImage = ConvertToBitmap(result);
+                
+                await UpdateHistograms();
+                StatusText = $"Flood fill applied at ({startX}, {startY})";
+            }
+            
+            IsProcessing = false;
+        }
+        catch (Exception ex)
+        {
+            StatusText = $"Error applying flood fill: {ex.Message}";
+            IsProcessing = false;
+        }
+    }
+
+    private void UpdateDrawingPreview()
+    {
+        if (_drawingCanvas == null) return;
+        ProcessedImage = ConvertToBitmap(_drawingCanvas);
     }
 
     [RelayCommand]
